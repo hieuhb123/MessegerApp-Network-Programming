@@ -44,13 +44,13 @@ make
 To build only the server:
 
 ```bash
-make server
+make run-server
 ```
 
 To build only the client:
 
 ```bash
-make client
+make run-client
 ```
 
 To clean build artifacts:
