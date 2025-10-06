@@ -1,0 +1,16 @@
+# Ignore build artifacts
+bin/
+obj/
+*.o
+*.out
+
+# Ignore IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
