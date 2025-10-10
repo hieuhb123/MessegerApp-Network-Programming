@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "common.h"
+#include <fstream>
 
 using namespace std;
 
@@ -24,6 +25,8 @@ private:
     vector<ClientInfo> clients;
     mutex clients_mutex;
     bool running;
+    const string user_db_path = "users.db"; // format: username:password\n (plaintext, demo only)
+    mutex users_mutex;
 
 public:
     MessengerServer() : server_socket(-1), running(false) {}
@@ -32,10 +35,94 @@ public:
         stop();
     }
 
+    // Find user; returns true and fills password if found
+    bool findUser(const string& username, string &password_out) {
+        lock_guard<mutex> lock(users_mutex);
+        ifstream in(user_db_path);
+        if (!in.is_open()) return false;
+        string line;
+        while (getline(in, line)) {
+            if (line.empty()) continue;
+            size_t p = line.find(':');
+            if (p == string::npos) continue;
+            string u = line.substr(0, p);
+            if (u == username) {
+                password_out = line.substr(p+1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool addUser(const string& username, const string& password) {
+        string tmp;
+        if (findUser(username, tmp)) return false; // exists
+        lock_guard<mutex> lock(users_mutex);
+        ofstream out(user_db_path, ios::app);
+        if (!out.is_open()) return false;
+        out << username << ":" << password << "\n";
+        return true;
+    }
+
+    bool verifyUser(const string& username, const string& password) {
+        string stored;
+        if (!findUser(username, stored)) return false;
+        return stored == password;
+    }
+
+    bool changePassword(const string& username, const string& newpass) {
+        lock_guard<mutex> lock(users_mutex);
+        ifstream in(user_db_path);
+        if (!in.is_open()) return false;
+        string content, line;
+        bool found = false;
+        while (getline(in, line)) {
+            if (line.empty()) continue;
+            size_t p = line.find(':');
+            if (p == string::npos) continue;
+            string u = line.substr(0, p);
+            if (u == username) {
+                content += username + ":" + newpass + "\n";
+                found = true;
+            } else {
+                content += line + "\n";
+            }
+        }
+        in.close();
+        if (!found) return false;
+        ofstream out(user_db_path, ios::trunc);
+        if (!out.is_open()) return false;
+        out << content;
+        return true;
+    }
+
+    bool deleteUser(const string& username) {
+        lock_guard<mutex> lock(users_mutex);
+        ifstream in(user_db_path);
+        if (!in.is_open()) return false;
+        string content, line;
+        bool found = false;
+        while (getline(in, line)) {
+            if (line.empty()) continue;
+            size_t p = line.find(':');
+            if (p == string::npos) continue;
+            string u = line.substr(0, p);
+            if (u == username) {
+                found = true; continue;
+            }
+            content += line + "\n";
+        }
+        in.close();
+        if (!found) return false;
+        ofstream out(user_db_path, ios::trunc);
+        if (!out.is_open()) return false;
+        out << content;
+        return true;
+    }
+
     bool start() {
         // Create socket
-        server_socket = socket(AF_INET, SOCK_STREAM, 0);
-        if (server_socket < 0) {
+        if ((server_socket = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
             cerr << COLOR_RED << "Failed to create socket" << COLOR_RESET << endl;
             return false;
         }
@@ -112,27 +199,85 @@ public:
         client_info.address = client_addr;
         client_info.username = "Anonymous";
 
-        // Wait for username
+        // Authentication flow (register/login/change/delete) before joining
         int bytes_received = recv(client_socket, &msg, sizeof(Message), 0);
-        if (bytes_received > 0 && msg.type == MSG_USERNAME) {
-            client_info.username = string(msg.username);
-            
-            {
-                lock_guard<mutex> lock(clients_mutex);
-                clients.push_back(client_info);
+        bool authed = false;
+        while (bytes_received > 0) {
+            if (msg.type == MSG_REGISTER) {
+                // msg.username and msg.content contain username and password
+                string uname = string(msg.username);
+                string pwd = string(msg.content);
+                Message resp{};
+                resp.type = MSG_AUTH_RESPONSE;
+                strncpy(resp.username, "Server", sizeof(resp.username) - 1);
+                if (uname.empty() || pwd.empty()) {
+                    resp.content[0] = AUTH_FAILURE;
+                    send(client_socket, &resp, sizeof(Message), 0);
+                } else {
+                    if (addUser(uname, pwd)) resp.content[0] = AUTH_SUCCESS; else resp.content[0] = AUTH_FAILURE;
+                    send(client_socket, &resp, sizeof(Message), 0);
+                }
+            }
+            else if (msg.type == MSG_LOGIN) {
+                string uname = string(msg.username);
+                string pwd = string(msg.content);
+                Message resp{};
+                resp.type = MSG_AUTH_RESPONSE;
+                strncpy(resp.username, "Server", sizeof(resp.username) - 1);
+                if (verifyUser(uname, pwd)) {
+                    resp.content[0] = AUTH_SUCCESS;
+                    send(client_socket, &resp, sizeof(Message), 0);
+                    client_info.username = uname;
+                    authed = true;
+                    break;
+                } else {
+                    resp.content[0] = AUTH_FAILURE;
+                    send(client_socket, &resp, sizeof(Message), 0);
+                }
+            }
+            else if (msg.type == MSG_CHANGE_PASSWORD) {
+                string uname = string(msg.username);
+                string newpass = string(msg.content);
+                Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                if (changePassword(uname, newpass)) resp.content[0] = AUTH_SUCCESS; else resp.content[0] = AUTH_FAILURE;
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_DELETE_ACCOUNT) {
+                string uname = string(msg.username);
+                Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                if (deleteUser(uname)) resp.content[0] = AUTH_SUCCESS; else resp.content[0] = AUTH_FAILURE;
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_USERNAME) {
+                client_info.username = string(msg.username);
+                authed = true; // fallback
+                break;
             }
 
-            cout << COLOR_GREEN << "✓ User '" << client_info.username 
-                 << "' joined the chat (Total users: " << clients.size() << ")" 
-                 << COLOR_RESET << endl;
-
-            // Broadcast join message
-            string join_msg = client_info.username + " joined the chat";
-            broadcastMessage("Server", join_msg, client_socket);
-
-            // Send user list to the new client
-            sendUserList(client_socket);
+            bytes_received = recv(client_socket, &msg, sizeof(Message), 0);
         }
+
+        if (!authed) {
+            close(client_socket);
+            return;
+        }
+
+        // Add to client list
+        {
+            lock_guard<mutex> lock(clients_mutex);
+            clients.push_back(client_info);
+        }
+
+        cout << COLOR_GREEN << "\u2713 User '" << client_info.username 
+             << "' joined the chat (Total users: " << clients.size() << ")" 
+             << COLOR_RESET << endl;
+
+        // Broadcast join message
+        string join_msg = client_info.username + " joined the chat";
+        broadcastMessage("Server", join_msg, client_socket);
+
+        // Send user list to the new client
+        sendUserList(client_socket);
 
         // Handle messages from client
         while (running) {

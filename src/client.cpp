@@ -56,6 +56,8 @@ public:
         return true;
     }
 
+    int getfd() const { return client_socket; }
+
     bool setUsername(const string& user) {
         username = user;
 
@@ -214,24 +216,42 @@ int main() {
         getline(cin, username);
     }
 
+    cout << COLOR_CYAN << "Do you want to (r)egister or (l)ogin? [r/l]: " << COLOR_RESET;
+    string choice; getline(cin, choice);
+    while (choice != "r" && choice != "l") { cout << COLOR_RED << "Enter 'r' or 'l': " << COLOR_RESET; getline(cin, choice); }
+
+    string password;
+    cout << COLOR_CYAN << "Enter password: " << COLOR_RESET;
+    getline(cin, password);
+
     cout << endl;
 
     // Create and connect client
     MessengerClient client;
-    
-    if (!client.connectToServer(server_ip)) {
+    if (!client.connectToServer(server_ip)) return 1;
+
+    // Send auth message
+    Message auth;
+    auth.type = (choice == "r") ? MSG_REGISTER : MSG_LOGIN;
+    strncpy(auth.username, username.c_str(), sizeof(auth.username)-1);
+    strncpy(auth.content, password.c_str(), sizeof(auth.content)-1);
+
+    if (send(client.getfd(), &auth, sizeof(Message), 0) < 0) {
+        cerr << COLOR_RED << "Failed to send auth message" << COLOR_RESET << endl;
         return 1;
     }
 
-    if (!client.setUsername(username)) {
+    // Wait for auth response
+    Message resp; int br = recv(client.getfd(), &resp, sizeof(Message), 0);
+    if (br <= 0 || resp.type != MSG_AUTH_RESPONSE || resp.content[0] != AUTH_SUCCESS) {
+        cerr << COLOR_RED << "Authentication failed" << COLOR_RESET << endl;
         return 1;
     }
 
-    cout << COLOR_GREEN << "✓ Joined chat as '" << username << "'" << COLOR_RESET << endl;
+    // Now set username and start
+    if (!client.setUsername(username)) return 1;
+    cout << COLOR_GREEN << "\u2713 Joined chat as '" << username << "'" << COLOR_RESET << endl;
     cout << COLOR_CYAN << "Type your messages and press Enter to send" << COLOR_RESET << endl;
-
-    // Run client
     client.run();
-
     return 0;
 }
