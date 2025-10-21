@@ -28,15 +28,54 @@ MessengerApp/
 ```
 
 ## Requirements
+The project requires a C++17-capable compiler and a few development libraries depending on which parts you want to build (console server/client and optional Qt GUI client).
 
-- C++ compiler with C++17 support (g++)
-- Linux/Unix environment (uses POSIX sockets)
-- pthread library
-- SQLite library
+Minimum requirements
+
+- C++ compiler with C++17 support (g++ or clang++)
+- CMake (for the Qt client)
+- make and build-essential (gcc, g++, make)
+- POSIX-compatible OS (Linux, macOS)
+- pthreads (usually provided by the standard C/C++ toolchain)
+- SQLite development library (headers + runtime)
+
+Recommended packages (install examples)
+
+Debian / Ubuntu:
+
 ```bash
 sudo apt update
-sudo apt install libsqlite3-dev
+sudo apt install build-essential cmake git libsqlite3-dev
+# If you want to build the Qt GUI client:
+sudo apt install qtbase5-dev libqt5network5 libqt5network5-dev qtchooser qt5-qmake qtbase5-dev-tools
 ```
+
+Fedora:
+
+```bash
+sudo dnf install @development-tools cmake sqlite-devel
+sudo dnf install qt5-qtbase-devel qt5-qttools-devel
+```
+
+Arch Linux / Manjaro:
+
+```bash
+sudo pacman -Syu base-devel cmake sqlite qt5-base
+```
+
+macOS (Homebrew):
+
+```bash
+brew install sqlite cmake qt
+# You may need to point CMake to Qt's installation via -DCMAKE_PREFIX_PATH
+```
+
+Notes
+
+- The console server and client require only a C++ compiler, make, and `libsqlite3-dev` to build and run.
+- The Qt GUI client (in `qt-client/`) requires Qt development packages and CMake. If you don't need the GUI, you can ignore the Qt packages and build only the console binaries with `make`.
+- If you see errors about missing `sqlite3.h`, install the `libsqlite3-dev` (Debian/Ubuntu) or `sqlite-devel` (Fedora) package and re-run `make`.
+- For Qt6 instead of Qt5, adjust the Qt CMake `find_package` lines in `qt-client/CMakeLists.txt` accordingly.
 
 ## Building
 
