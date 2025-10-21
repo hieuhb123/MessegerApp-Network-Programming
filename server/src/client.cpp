@@ -105,6 +105,10 @@ public:
                 cout << COLOR_MAGENTA << msg.content << COLOR_RESET << endl;
                 cout << COLOR_GREEN << "You: " << COLOR_RESET << flush;
             }
+            else if (msg.type == MSG_FRIEND_LIST_RESPONSE) {
+                cout << COLOR_MAGENTA << msg.content << COLOR_RESET << endl;
+                cout << COLOR_GREEN << "You: " << COLOR_RESET << flush;
+            }
         }
     }
 
@@ -144,6 +148,45 @@ public:
             else if (input == "/users") {
                 // Request user list (this is a custom implementation)
                 cout << COLOR_YELLOW << "User list request sent to server" << COLOR_RESET << endl;
+                continue;
+            }
+            else if (input.rfind("/addfriend ", 0) == 0) {
+                string target = input.substr(11);
+                Message msg{}; msg.type = MSG_FRIEND_REQUEST; strncpy(msg.username, username.c_str(), sizeof(msg.username)-1); strncpy(msg.content, target.c_str(), sizeof(msg.content)-1);
+                send(client_socket, &msg, sizeof(Message), 0);
+                cout << COLOR_YELLOW << "Friend request sent to " << target << COLOR_RESET << endl;
+                continue;
+            }
+            else if (input.rfind("/acceptfriend ", 0) == 0) {
+                string from = input.substr(14);
+                Message msg{}; msg.type = MSG_FRIEND_ACCEPT; strncpy(msg.username, username.c_str(), sizeof(msg.username)-1); strncpy(msg.content, from.c_str(), sizeof(msg.content)-1);
+                send(client_socket, &msg, sizeof(Message), 0);
+                cout << COLOR_YELLOW << "Accepted friend request from " << from << COLOR_RESET << endl;
+                continue;
+            }
+            else if (input == "/friends") {
+                Message msg{}; msg.type = MSG_FRIEND_LIST_REQUEST; 
+                strncpy(msg.username, username.c_str(), sizeof(msg.username)-1);
+                send(client_socket, &msg, sizeof(Message), 0);
+                continue;
+            }
+            else if (input.rfind("/unfriend ", 0) == 0) {
+                string target = input.substr(9);
+                Message msg{}; msg.type = MSG_FRIEND_REMOVE; 
+                strncpy(msg.username, username.c_str(), sizeof(msg.username)-1); 
+                strncpy(msg.content, target.c_str(), sizeof(msg.content)-1);
+                send(client_socket, &msg, sizeof(Message), 0);
+                cout << COLOR_YELLOW << "Unfriend request sent for " << target << COLOR_RESET << endl;
+                int bytes_received = recv(client_socket, &msg, sizeof(Message), 0);
+                if (bytes_received > 0) {
+                    if (msg.type == MSG_AUTH_RESPONSE) {
+                        if (msg.content[0] == AUTH_SUCCESS) {
+                            cout << COLOR_GREEN << "Unfriend request accepted" << COLOR_RESET << endl;
+                        } else {
+                            cout << COLOR_RED << "Unfriend request denied" << COLOR_RESET << endl;
+                        }
+                    }
+                }
                 continue;
             }
 

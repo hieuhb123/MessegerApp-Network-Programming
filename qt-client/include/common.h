@@ -25,6 +25,15 @@
 #define AUTH_SUCCESS 1
 #define AUTH_FAILURE 0
 
+// Friend system
+#define MSG_FRIEND_REQUEST 20
+#define MSG_FRIEND_ACCEPT 21
+#define MSG_FRIEND_DECLINE 22
+#define MSG_FRIEND_LIST_REQUEST 23
+#define MSG_FRIEND_LIST_RESPONSE 24
+// Unfriend
+#define MSG_FRIEND_REMOVE 25
+
 // Color codes for terminal output
 #define COLOR_RESET   "\033[0m"
 #define COLOR_RED     "\033[31m"

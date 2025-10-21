@@ -32,6 +32,11 @@ MessengerApp/
 - C++ compiler with C++17 support (g++)
 - Linux/Unix environment (uses POSIX sockets)
 - pthread library
+- SQLite library
+```bash
+sudo apt update
+sudo apt install libsqlite3-dev
+```
 
 ## Building
 

@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -pthread -I./include
-LDFLAGS = -pthread
+LDFLAGS = -pthread -lsqlite3
 
 SRC_DIR = src
 OBJ_DIR = obj
