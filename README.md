@@ -41,33 +41,39 @@ Minimum requirements
 
 Recommended packages (install examples)
 
-Debian / Ubuntu:
+Debian / Ubuntu (recommended - tested on Ubuntu 20.04 / 22.04):
 
 ```bash
 sudo apt update
-sudo apt install build-essential cmake git libsqlite3-dev
-# If you want to build the Qt GUI client:
-sudo apt install qtbase5-dev libqt5network5 libqt5network5-dev qtchooser qt5-qmake qtbase5-dev-tools
+# Core build tools + SQLite dev headers
+sudo apt install -y build-essential cmake git libsqlite3-dev
+
+# Optional: Qt GUI client dependencies (Qt5)
+sudo apt install -y qtbase5-dev libqt5network5 libqt5network5-dev qtchooser qt5-qmake qtbase5-dev-tools
+
+# If you prefer Qt6, install the Qt6 dev packages instead and update `qt-client/CMakeLists.txt`.
 ```
 
-Fedora:
+Quick Ubuntu build & run (console apps)
 
 ```bash
-sudo dnf install @development-tools cmake sqlite-devel
-sudo dnf install qt5-qtbase-devel qt5-qttools-devel
+# from project root
+make            # builds server and console client
+# run server
+./bin/server
+# in another terminal, run client
+./bin/client
 ```
 
-Arch Linux / Manjaro:
+Quick Ubuntu build & run (Qt GUI client)
 
 ```bash
-sudo pacman -Syu base-devel cmake sqlite qt5-base
-```
-
-macOS (Homebrew):
-
-```bash
-brew install sqlite cmake qt
-# You may need to point CMake to Qt's installation via -DCMAKE_PREFIX_PATH
+cd qt-client
+mkdir -p build && cd build
+cmake ..
+make -j$(nproc)
+# run the Qt client binary
+./messenger_qt
 ```
 
 Notes
