@@ -380,6 +380,10 @@ CMakeFiles/messenger_qt.dir/main.cpp.o: ../main.cpp \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlayoutitem.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qboxlayout.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qgridlayout.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QLabel \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlabel.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout \
+  /usr/include/c++/11/cstring \
   ../include/common.h
 
 CMakeFiles/messenger_qt.dir/mainwindow.cpp.o: ../mainwindow.cpp \
@@ -755,12 +759,45 @@ CMakeFiles/messenger_qt.dir/mainwindow.cpp.o: ../mainwindow.cpp \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlayoutitem.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qboxlayout.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qgridlayout.h \
-  ../include/common.h \
-  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QLabel \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlabel.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout \
+  /usr/include/c++/11/cstring \
+  ../include/common.h \
   /usr/include/x86_64-linux-gnu/qt5/QtNetwork/QHostAddress \
-  /usr/include/x86_64-linux-gnu/qt5/QtNetwork/qhostaddress.h
+  /usr/include/x86_64-linux-gnu/qt5/QtNetwork/qhostaddress.h \
+  /usr/include/x86_64-linux-gnu/sys/socket.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h \
+  /usr/include/x86_64-linux-gnu/bits/socket.h \
+  /usr/include/x86_64-linux-gnu/bits/socket_type.h \
+  /usr/include/x86_64-linux-gnu/bits/sockaddr.h \
+  /usr/include/x86_64-linux-gnu/asm/socket.h \
+  /usr/include/asm-generic/socket.h \
+  /usr/include/linux/posix_types.h \
+  /usr/include/linux/stddef.h \
+  /usr/include/x86_64-linux-gnu/asm/posix_types.h \
+  /usr/include/x86_64-linux-gnu/asm/posix_types_64.h \
+  /usr/include/asm-generic/posix_types.h \
+  /usr/include/x86_64-linux-gnu/asm/bitsperlong.h \
+  /usr/include/asm-generic/bitsperlong.h \
+  /usr/include/x86_64-linux-gnu/asm/sockios.h \
+  /usr/include/asm-generic/sockios.h \
+  /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h \
+  /usr/include/netinet/in.h \
+  /usr/include/x86_64-linux-gnu/bits/in.h \
+  /usr/include/arpa/inet.h \
+  /usr/include/unistd.h \
+  /usr/include/x86_64-linux-gnu/bits/posix_opt.h \
+  /usr/include/x86_64-linux-gnu/bits/environments.h \
+  /usr/include/x86_64-linux-gnu/bits/confname.h \
+  /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
+  /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
+  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
+  /usr/include/linux/close_range.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QInputDialog \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qinputdialog.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlineedit.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h
 
 CMakeFiles/messenger_qt.dir/messenger_qt_autogen/mocs_compilation.cpp.o: messenger_qt_autogen/mocs_compilation.cpp \
   /usr/include/stdc-predef.h \
@@ -1136,6 +1173,10 @@ CMakeFiles/messenger_qt.dir/messenger_qt_autogen/mocs_compilation.cpp.o: messeng
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlayoutitem.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qboxlayout.h \
   /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qgridlayout.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QLabel \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlabel.h \
+  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout \
+  /usr/include/c++/11/cstring \
   ../include/common.h
 
 
@@ -1143,13 +1184,35 @@ messenger_qt_autogen/EWIEGA46WW/moc_mainwindow.cpp:
 
 messenger_qt_autogen/mocs_compilation.cpp:
 
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qinputdialog.h:
+
+/usr/include/linux/close_range.h:
+
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
+
+/usr/include/x86_64-linux-gnu/bits/getopt_core.h:
+
+/usr/include/netinet/in.h:
+
+/usr/include/asm-generic/sockios.h:
+
+/usr/include/asm-generic/posix_types.h:
+
+/usr/include/x86_64-linux-gnu/asm/posix_types.h:
+
+/usr/include/x86_64-linux-gnu/bits/socket_type.h:
+
+/usr/include/x86_64-linux-gnu/bits/socket.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtNetwork/qhostaddress.h:
+
+/usr/include/x86_64-linux-gnu/bits/posix_opt.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlabel.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QLabel:
-
-/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QHBoxLayout:
 
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qgridlayout.h:
 
@@ -1204,6 +1267,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 /usr/include/c++/11/bits/align.h:
 
 /usr/include/c++/11/bits/stl_raw_storage_iter.h:
+
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qpixmap.h:
 
@@ -1267,6 +1332,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qcursor.h:
 
+/usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qsize.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qwindowdefs.h:
@@ -1325,6 +1392,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/c++/11/bits/uses_allocator.h:
 
+/usr/include/x86_64-linux-gnu/asm/bitsperlong.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qboxlayout.h:
 
 /usr/include/c++/11/backward/binders.h:
@@ -1343,7 +1412,13 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/c++/11/typeinfo:
 
+/usr/include/x86_64-linux-gnu/asm/sockios.h:
+
+/usr/include/c++/11/cstring:
+
 /usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
+
+/usr/include/linux/stddef.h:
 
 /usr/include/c++/11/bits/refwrap.h:
 
@@ -1361,6 +1436,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/c++/11/ext/new_allocator.h:
 
+/usr/include/asm-generic/socket.h:
+
 /usr/include/c++/11/bits/invoke.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qchar.h:
@@ -1368,6 +1445,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes.h:
 
 /usr/include/c++/11/bits/allocated_ptr.h:
+
+/usr/include/x86_64-linux-gnu/asm/socket.h:
 
 /usr/include/x86_64-linux-gnu/sys/select.h:
 
@@ -1416,6 +1495,10 @@ messenger_qt_autogen/mocs_compilation.cpp:
 /usr/include/x86_64-linux-gnu/bits/stdint-uintn.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h:
+
+/usr/include/x86_64-linux-gnu/sys/socket.h:
 
 /usr/include/c++/11/bits/memoryfwd.h:
 
@@ -1521,6 +1604,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/c++/11/bits/stl_relops.h:
 
+/usr/include/x86_64-linux-gnu/qt5/QtWidgets/QInputDialog:
+
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
 
 /usr/include/locale.h:
@@ -1585,6 +1670,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/c++/11/bits/stl_heap.h:
 
+/usr/include/x86_64-linux-gnu/bits/environments.h:
+
 /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h:
 
 /usr/include/c++/11/bits/exception_defines.h:
@@ -1599,6 +1686,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qsysinfo.h:
 
+/usr/include/x86_64-linux-gnu/bits/confname.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qprocessordetection.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/error_t.h:
@@ -1612,6 +1701,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 /usr/include/c++/11/bits/stl_iterator.h:
 
 /usr/include/c++/11/new:
+
+/usr/include/unistd.h:
 
 /usr/include/c++/11/bits/stl_algobase.h:
 
@@ -1630,6 +1721,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 /usr/include/c++/11/bits/stl_numeric.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qlogging.h:
+
+/usr/include/asm-generic/bitsperlong.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h:
 
@@ -1655,11 +1748,15 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
 
+/usr/include/x86_64-linux-gnu/bits/in.h:
+
 /usr/include/c++/11/bits/postypes.h:
 
 /usr/include/c++/11/vector:
 
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
+
+/usr/include/linux/posix_types.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qtgui-config.h:
 
@@ -1745,6 +1842,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qarraydata.h:
 
+/usr/include/x86_64-linux-gnu/asm/posix_types_64.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtGui/qtouchdevice.h:
 
 /usr/include/x86_64-linux-gnu/bits/cpu-set.h:
@@ -1816,6 +1915,8 @@ messenger_qt_autogen/mocs_compilation.cpp:
 /usr/include/c++/11/ext/alloc_traits.h:
 
 /usr/include/x86_64-linux-gnu/bits/sched.h:
+
+/usr/include/x86_64-linux-gnu/bits/getopt_posix.h:
 
 /usr/include/time.h:
 
@@ -1903,9 +2004,13 @@ messenger_qt_autogen/mocs_compilation.cpp:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qobject.h:
 
+/usr/include/x86_64-linux-gnu/bits/sockaddr.h:
+
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qstringalgorithms.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qalgorithms.h:
+
+/usr/include/arpa/inet.h:
 
 /usr/include/x86_64-linux-gnu/qt5/QtCore/qhashfunctions.h:
 
