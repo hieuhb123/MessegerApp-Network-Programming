@@ -4,6 +4,9 @@
 #include <string>
 
 // Network configuration
+// #define SERVER_IP "140.245.98.236"
+// #define PORT 4424
+#define SERVER_IP "127.0.0.1"
 #define PORT 8080
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 4096
@@ -33,6 +36,17 @@
 #define MSG_FRIEND_LIST_RESPONSE 24
 // Unfriend
 #define MSG_FRIEND_REMOVE 25
+
+// All users with friendship status relative to requester
+#define MSG_ALL_USERS_STATUS_REQUEST 26
+#define MSG_ALL_USERS_STATUS_RESPONSE 27
+
+// Direct messaging and history
+// Client sends a direct message request; server stores it and delivers to the recipient as MSG_TEXT
+#define MSG_DIRECT_MESSAGE 28
+// Client requests conversation history with a peer; server responds with newline-delimited lines
+#define MSG_HISTORY_REQUEST 29
+#define MSG_HISTORY_RESPONSE 30
 
 // Color codes for terminal output
 #define COLOR_RESET   "\033[0m"

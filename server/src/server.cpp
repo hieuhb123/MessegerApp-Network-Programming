@@ -63,6 +63,21 @@ public:
             if (err) sqlite3_free(err);
             return false;
         }
+        // Messages table: store direct messages between users
+        const char *sql3 =
+            "CREATE TABLE IF NOT EXISTS messages (\n"
+            "  id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+            "  sender TEXT NOT NULL,\n"
+            "  receiver TEXT NOT NULL,\n"
+            "  content TEXT NOT NULL,\n"
+            "  ts INTEGER NOT NULL DEFAULT (strftime('%s','now'))\n"
+            ");";
+        rc = sqlite3_exec(db, sql3, nullptr, nullptr, &err);
+        if (rc != SQLITE_OK) {
+            cerr << COLOR_RED << "Failed to create messages table: " << (err?err:"") << COLOR_RESET << endl;
+            if (err) sqlite3_free(err);
+            return false;
+        }
         return true;
     }
 
@@ -163,9 +178,31 @@ public:
         string ufrom = trimStr(from);
         string uto = trimStr(to);
         if (ufrom.empty() || uto.empty()) return false;
+        // Only accept if there is a pending request from 'from' -> 'to'
+        const char *check_q = "SELECT status FROM friends WHERE user = ? AND friend = ? LIMIT 1;";
+        sqlite3_stmt *stmt = nullptr;
+        bool hasPending = false;
+        if (sqlite3_prepare_v2(db, check_q, -1, &stmt, nullptr) == SQLITE_OK) {
+            sqlite3_bind_text(stmt, 1, ufrom.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 2, uto.c_str(), -1, SQLITE_STATIC);
+            int rc = sqlite3_step(stmt);
+            if (rc == SQLITE_ROW) {
+                const unsigned char *st = sqlite3_column_text(stmt, 0);
+                string s = st ? reinterpret_cast<const char*>(st) : string();
+                if (s == "pending") hasPending = true;
+            }
+            sqlite3_finalize(stmt);
+        } else {
+            return false;
+        }
+
+        if (!hasPending) {
+            // no pending request to accept
+            return false;
+        }
+
         // set both directions to 'accepted'
         const char *sql = "INSERT OR REPLACE INTO friends(user,friend,status) VALUES(?,?,?);";
-        sqlite3_stmt *stmt = nullptr;
         if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
         sqlite3_bind_text(stmt, 1, ufrom.c_str(), -1, SQLITE_STATIC);
         sqlite3_bind_text(stmt, 2, uto.c_str(), -1, SQLITE_STATIC);
@@ -199,6 +236,146 @@ public:
             if (f) out.push_back(reinterpret_cast<const char*>(f));
         }
         sqlite3_finalize(stmt);
+        return out;
+    }
+
+    // List all registered users and friendship status relative to viewer
+    string friendStatus(const string& viewer, const string& other) {
+        if (viewer == other) return string("self");
+        const char *q = "SELECT status FROM friends WHERE user = ? AND friend = ? LIMIT 1;";
+        sqlite3_stmt *stmt = nullptr;
+        // check viewer -> other
+        if (sqlite3_prepare_v2(db, q, -1, &stmt, nullptr) == SQLITE_OK) {
+            sqlite3_bind_text(stmt, 1, viewer.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 2, other.c_str(), -1, SQLITE_STATIC);
+            int rc = sqlite3_step(stmt);
+            if (rc == SQLITE_ROW) {
+                const unsigned char *st = sqlite3_column_text(stmt, 0);
+                string s = st ? reinterpret_cast<const char*>(st) : "";
+                sqlite3_finalize(stmt);
+                if (s == "accepted") return string("friend");
+                if (s == "pending") return string("outgoing");
+            }
+            sqlite3_finalize(stmt);
+        }
+        // check other -> viewer (incoming pending)
+        if (sqlite3_prepare_v2(db, q, -1, &stmt, nullptr) == SQLITE_OK) {
+            sqlite3_bind_text(stmt, 1, other.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 2, viewer.c_str(), -1, SQLITE_STATIC);
+            int rc = sqlite3_step(stmt);
+            if (rc == SQLITE_ROW) {
+                const unsigned char *st = sqlite3_column_text(stmt, 0);
+                string s = st ? reinterpret_cast<const char*>(st) : "";
+                sqlite3_finalize(stmt);
+                if (s == "accepted") return string("friend");
+                if (s == "pending") return string("incoming");
+            }
+            sqlite3_finalize(stmt);
+        }
+        return string("none");
+    }
+
+    string listAllUsersWithStatus(const string& viewer) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return string("No DB");
+        string v = trimStr(viewer);
+        if (v.empty()) return string("No viewer");
+        const char *sql = "SELECT username FROM users ORDER BY username;";
+        sqlite3_stmt *stmt = nullptr;
+        string out;
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return string("DB error");
+        out = "Users and status:\n";
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const unsigned char *u = sqlite3_column_text(stmt, 0);
+            if (!u) continue;
+            string uname = reinterpret_cast<const char*>(u);
+            string status = friendStatus(v, uname);
+            out += "- " + uname + ": " + status + "\n";
+            if (out.size() > BUFFER_SIZE - 64) { // safety truncation
+                out += "...\n";
+                break;
+            }
+        }
+        sqlite3_finalize(stmt);
+        return out;
+    }
+
+    // Check if two users are friends (accepted)
+    bool areFriends(const string& a, const string& b) {
+        if (a == b) return false;
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return false;
+        const char *q = "SELECT 1 FROM friends WHERE user = ? AND friend = ? AND status = 'accepted' LIMIT 1;";
+        sqlite3_stmt *stmt = nullptr;
+        bool ok = false;
+        if (sqlite3_prepare_v2(db, q, -1, &stmt, nullptr) == SQLITE_OK) {
+            sqlite3_bind_text(stmt, 1, a.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 2, b.c_str(), -1, SQLITE_STATIC);
+            if (sqlite3_step(stmt) == SQLITE_ROW) ok = true;
+            sqlite3_finalize(stmt);
+        }
+        if (ok) return true;
+        // Check reverse just in case (shouldn't be needed if both rows exist)
+        if (sqlite3_prepare_v2(db, q, -1, &stmt, nullptr) == SQLITE_OK) {
+            sqlite3_bind_text(stmt, 1, b.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 2, a.c_str(), -1, SQLITE_STATIC);
+            if (sqlite3_step(stmt) == SQLITE_ROW) ok = true;
+            sqlite3_finalize(stmt);
+        }
+        return ok;
+    }
+
+    bool saveMessage(const string& sender, const string& receiver, const string& content) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return false;
+        const char *ins = "INSERT INTO messages(sender,receiver,content) VALUES(?,?,?);";
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, ins, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, sender.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, receiver.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 3, content.c_str(), -1, SQLITE_STATIC);
+        int rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        return rc == SQLITE_DONE;
+    }
+
+    string getConversationHistory(const string& a, const string& b, int limit = 100) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return string("No DB");
+        const char *q =
+            "SELECT sender, content, ts FROM messages\n"
+            "WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)\n"
+            "ORDER BY id ASC LIMIT ?;";
+        sqlite3_stmt *stmt = nullptr;
+        string out;
+        if (sqlite3_prepare_v2(db, q, -1, &stmt, nullptr) != SQLITE_OK) return string("DB error");
+        sqlite3_bind_text(stmt, 1, a.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, b.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 3, b.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 4, a.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 5, limit);
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const unsigned char *sender = sqlite3_column_text(stmt, 0);
+            const unsigned char *body = sqlite3_column_text(stmt, 1);
+            int ts = sqlite3_column_int(stmt, 2);
+            // format timestamp to human-readable
+            time_t t = static_cast<time_t>(ts);
+            struct tm lt;
+            localtime_r(&t, &lt);
+            char tbuf[64];
+            strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", &lt);
+            string line;
+            line.reserve(128);
+            if (tbuf) line += string("[") + tbuf + "] ";
+            if (sender) line += reinterpret_cast<const char*>(sender);
+            line += ": ";
+            if (body) line += reinterpret_cast<const char*>(body);
+            line += "\n";
+            if (out.size() + line.size() > BUFFER_SIZE - 32) { out += "...\n"; break; }
+            out += line;
+        }
+        sqlite3_finalize(stmt);
+        if (out.empty()) out = string("(no messages)\n");
         return out;
     }
 
@@ -379,12 +556,7 @@ public:
              << "' joined the chat (Total users: " << clients.size() << ")" 
              << COLOR_RESET << endl;
 
-        // Broadcast join message
-        string join_msg = client_info.username + " joined the chat";
-        broadcastMessage("Server", join_msg, client_socket);
-
-        // Send user list to the new client
-        sendUserList(client_socket);
+    // (broadcasting disabled)
 
         // Handle messages from client
         while (running) {
@@ -395,13 +567,14 @@ public:
                 break;
             }
 
+          // (debug output removed)
+
             if (msg.type == MSG_TEXT) {
                 string message = string(msg.content);
                 cout << COLOR_BLUE << "[" << client_info.username << "]: " 
                      << COLOR_RESET << message << endl;
                 
-                // Broadcast message to all other clients
-                broadcastMessage(client_info.username, message, client_socket);
+                // broadcasting of MSG_TEXT is disabled
             }
             else if (msg.type == MSG_FRIEND_REQUEST) {
                 string to = string(msg.content);
@@ -432,6 +605,52 @@ public:
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
             }
+            else if (msg.type == MSG_ALL_USERS_STATUS_REQUEST) {
+                string listing = listAllUsersWithStatus(client_info.username);
+                Message resp{}; 
+                resp.type = MSG_ALL_USERS_STATUS_RESPONSE; 
+                strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                resp.content[0] = '\0';
+                strncpy(resp.content, listing.c_str(), sizeof(resp.content)-1);
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_DIRECT_MESSAGE) {
+                // msg.username holds the receiver, msg.content holds the body; sender is client_info.username
+                string to = trimStr(string(msg.username));
+                string body = string(msg.content);
+                bool ok = false;
+                if (!to.empty() && !body.empty()) {
+                    ok = saveMessage(client_info.username, to, body);
+                    if (ok) {
+                        // deliver to online recipient as a chat message (MSG_TEXT)
+                        lock_guard<mutex> lock(clients_mutex);
+                        for (const auto &c : clients) {
+                            if (c.username == to) {
+                                Message dm{};
+                                dm.type = MSG_TEXT;
+                                strncpy(dm.username, client_info.username.c_str(), sizeof(dm.username)-1);
+                                strncpy(dm.content, body.c_str(), sizeof(dm.content)-1);
+                          // deliver DM to online recipient
+                          send(c.socket, &dm, sizeof(Message), 0);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            else if (msg.type == MSG_HISTORY_REQUEST) {
+                // msg.username holds the peer
+                string peer = trimStr(string(msg.username));
+                string listing;
+                if (!peer.empty()) {
+                    listing = getConversationHistory(client_info.username, peer, 200);
+                } else {
+                    listing = string("Invalid peer\n");
+                }
+                Message resp{}; resp.type = MSG_HISTORY_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                strncpy(resp.content, listing.c_str(), sizeof(resp.content)-1);
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
             else if (msg.type == MSG_DISCONNECT) {
                 break;
             }
@@ -451,26 +670,12 @@ public:
              << "' left the chat (Total users: " << clients.size() << ")" 
              << COLOR_RESET << endl;
 
-        // Broadcast leave message
-        string leave_msg = client_info.username + " left the chat";
-        broadcastMessage("Server", leave_msg, client_socket);
+    // (broadcasting disabled)
 
         close(client_socket);
     }
 
-    void broadcastMessage(const string& username, const string& content, int exclude_socket = -1) {
-        Message msg;
-        msg.type = MSG_TEXT;
-        strncpy(msg.username, username.c_str(), sizeof(msg.username) - 1);
-        strncpy(msg.content, content.c_str(), sizeof(msg.content) - 1);
-
-        lock_guard<mutex> lock(clients_mutex);
-        for (const auto& client : clients) {
-            if (client.socket != exclude_socket) {
-                send(client.socket, &msg, sizeof(Message), 0);
-            }
-        }
-    }
+    // broadcasting has been removed
 
     void sendUserList(int client_socket) {
         lock_guard<mutex> lock(clients_mutex);

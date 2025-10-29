@@ -34,6 +34,17 @@
 // Unfriend
 #define MSG_FRIEND_REMOVE 25
 
+// All users with friendship status relative to requester
+#define MSG_ALL_USERS_STATUS_REQUEST 26
+#define MSG_ALL_USERS_STATUS_RESPONSE 27
+
+// Direct messaging and history
+// Client sends a direct message request; server stores it and delivers to the recipient as MSG_TEXT
+#define MSG_DIRECT_MESSAGE 28
+// Client requests conversation history with a peer; server responds with newline-delimited lines
+#define MSG_HISTORY_REQUEST 29
+#define MSG_HISTORY_RESPONSE 30
+
 // Color codes for terminal output
 #define COLOR_RESET   "\033[0m"
 #define COLOR_RED     "\033[31m"

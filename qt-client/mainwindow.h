@@ -3,10 +3,17 @@
 #include <QPlainTextEdit>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QSocketNotifier>
+#include <QTimer>
+#include <QTimer>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <QListWidget>
+#include <QMap>
+#include <QStringList>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QFile>
 #include <cstring>
 
 #include "./include/common.h"
@@ -27,12 +34,21 @@ private slots:
     void onListFriendsClicked();
     void onUnfriendClicked();
     void onUsersClicked();
-    void onReadyRead();
+    void onHistoryClicked();
+    // removed auto read; we'll recv manually per action
+    void onConversationChanged();
+    void pollMessages();
 
 private:
     // helpers
     void sendMessage(const Message &msg);
     void setLoggedInState(bool loggedIn);
+    bool recvMessageBlocking(Message &out, int timeoutMs = 2000);
+    void attemptConnect();
+    void scheduleReconnect();
+    void cleanupSocket();
+    bool loadCredentials(QString &user, QString &pass);
+    void tryAutoLogin();
 
     // UI
     QPlainTextEdit *logView;
@@ -40,8 +56,12 @@ private:
     QLineEdit *serverIp;
     QPushButton *connectBtn;
     QPushButton *sendBtn;
+    QPushButton *historyBtn;
+    QListWidget *convoList;
     int sockfd;
-    QSocketNotifier *readNotifier = nullptr;
+    QTimer *reconnectTimer = nullptr;
+    int reconnectIntervalMs = 2000;
+    QTimer *pollTimer = nullptr;
 
     // auth widgets
     QLineEdit *usernameEdit;
@@ -55,7 +75,9 @@ private:
     QPushButton *listFriendsBtn;
     QPushButton *unfriendBtn;
     QPushButton *usersBtn;
+    
 
     QString currentUser;
     bool loggedIn = false;
+    QMap<QString, QStringList> conversations; // username -> lines
 };
