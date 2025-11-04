@@ -68,10 +68,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     layout->addLayout(bottom);
 
     QHBoxLayout *actions = new QHBoxLayout();
+    connectBtn = new QPushButton("Connect", central);
+    disconnectBtn = new QPushButton("Disconnect", central);
+    disconnectBtn->setEnabled(false);
+    connect(connectBtn, &QPushButton::clicked, this, &MainWindow::attemptConnect);
+    connect(disconnectBtn, &QPushButton::clicked, this, &MainWindow::onDisconnectClicked);
     actions->addWidget(listFriendsBtn);
     actions->addWidget(usersBtn);
     actions->addWidget(createGroupBtn);
     actions->addWidget(listGroupsBtn);
+    actions->addWidget(connectBtn);
+    actions->addWidget(disconnectBtn);
     layout->addLayout(actions);
 
     sockfd = -1;
@@ -143,7 +150,11 @@ MainWindow::~MainWindow() {
         sockfd = fd;
         if (reconnectTimer && reconnectTimer->isActive()) reconnectTimer->stop();
         logView->appendPlainText("Connected to server (auto-connect)");
-        tryAutoLogin();
+            if (connectBtn) connectBtn->setEnabled(false);
+            if (disconnectBtn) disconnectBtn->setEnabled(true);
+        // If not logged in, try auto-login; otherwise flush any queued messages
+        if (!loggedIn) tryAutoLogin();
+        else flushPendingMessages();
     }
 
     void MainWindow::tryAutoLogin() {
@@ -167,6 +178,8 @@ MainWindow::~MainWindow() {
                 pollTimer->setInterval(200);
             }
             pollTimer->start();
+            // flush any messages queued while offline
+            flushPendingMessages();
         } else {
             logView->appendPlainText("Auto-login failed or timed out");
         }
@@ -185,9 +198,64 @@ void MainWindow::cleanupSocket() {
         sockfd = -1;
     }
     if (pollTimer && pollTimer->isActive()) pollTimer->stop();
+    if (connectBtn) connectBtn->setEnabled(true);
+    if (disconnectBtn) disconnectBtn->setEnabled(false);
+}
+
+void MainWindow::onDisconnectClicked() {
+    if (reconnectTimer && reconnectTimer->isActive()) reconnectTimer->stop();
+    cleanupSocket();
+        // mark logged out
+    loggedIn = false;
+    sendBtn->setEnabled(true);
+    logView->appendPlainText("Disconnected (manual)");
+
+    // keep loggedIn state — allow sending which will be queued and flushed on reconnect
+    logView->appendPlainText("Disconnected (manual). Chat messages will be queued and sent when reconnected.");
 }
 void MainWindow::sendMessage(const Message &msg) {
+    // If this is a chat message and we're offline, queue it for later send
     if (sockfd < 0) {
+        if (msg.type == MSG_DIRECT_MESSAGE || msg.type == MSG_GROUP_MESSAGE || msg.type == MSG_TEXT) {
+            pendingMessages.append(msg);
+            // optimistic UI append for direct/group messages
+            if (msg.type == MSG_DIRECT_MESSAGE) {
+                QString target = QString::fromUtf8(msg.username);
+                QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+                QString line = QString("[%1] [Me -> %2] %3 (queued)").arg(now, target, QString::fromUtf8(msg.content));
+                conversations[target].append(line);
+                if (convoList->currentItem() && convoList->currentItem()->text() == target) {
+                    logView->setPlainText(conversations[target].join("\n"));
+                    logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
+                } else {
+                    logView->appendPlainText(line);
+                }
+            } else if (msg.type == MSG_GROUP_MESSAGE) {
+                QString gname = QString::fromUtf8(msg.username);
+                QString key = QString("Group:%1").arg(gname);
+                QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+                QString line = QString("[%1] [Me -> %2] %3 (queued)").arg(now, gname, QString::fromUtf8(msg.content));
+                conversations[key].append(line);
+                if (convoList->currentItem() && convoList->currentItem()->text() == key) {
+                    logView->setPlainText(conversations[key].join("\n"));
+                    logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
+                } else {
+                    logView->appendPlainText(line);
+                }
+            } else if (msg.type == MSG_TEXT) {
+                QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+                QString line = QString("[%1] [Me] %2 (queued)").arg(now, QString::fromUtf8(msg.content));
+                conversations["All"].append(line);
+                if (convoList->currentItem() && convoList->currentItem()->text() == "All") {
+                    logView->setPlainText(conversations["All"].join("\n"));
+                    logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
+                } else {
+                    logView->appendPlainText(line);
+                }
+            }
+            logView->appendPlainText("Message queued for later delivery (offline)");
+            return;
+        }
         logView->appendPlainText("Not connected");
         return;
     }
@@ -196,6 +264,27 @@ void MainWindow::sendMessage(const Message &msg) {
         logView->appendPlainText(QString("SEND error: %1").arg(strerror(errno)));
     } else {
         logView->appendPlainText(QString("-> SENT type=%1 bytes=%2").arg(msg.type).arg((long long)sent));
+    }
+}
+
+void MainWindow::flushPendingMessages() {
+    if (sockfd < 0) return;
+    if (pendingMessages.isEmpty()) return;
+    int sentCount = 0;
+    for (const Message &m : qAsConst(pendingMessages)) {
+        ssize_t s = ::send(sockfd, &m, sizeof(Message), 0);
+        if (s == (ssize_t)sizeof(Message)) {
+            ++sentCount;
+        } else {
+            logView->appendPlainText("Failed to flush a queued message (will retry later)");
+            // stop here; keep remaining messages queued
+            break;
+        }
+    }
+    if (sentCount > 0) {
+        // remove the first sentCount messages
+        for (int i = 0; i < sentCount; ++i) pendingMessages.removeFirst();
+        logView->appendPlainText(QString("Flushed %1 queued message(s)").arg(sentCount));
     }
 }
 
@@ -296,6 +385,8 @@ void MainWindow::onLoginClicked() {
             pollTimer->setInterval(200);
         }
         pollTimer->start();
+        // flush queued messages after manual login
+        flushPendingMessages();
         // populate convoList with friends automatically after login
         {
             Message msg{}; 
@@ -357,24 +448,25 @@ void MainWindow::onLoginClicked() {
 }
 
 void MainWindow::onSendClicked() {
-    if (sockfd < 0) return;
     QString text = input->text();
     if (text.isEmpty()) return;
     QString target = convoList->currentItem() ? convoList->currentItem()->text() : QString("All");
-
-        // group message if target is a group (prefix "Group:")
     if (target.startsWith("Group:", Qt::CaseInsensitive)) {
         QString gname = target.mid(QString("Group:").length());
-        Message msg{}; msg.type = MSG_GROUP_MESSAGE; strncpy(msg.username, gname.toStdString().c_str(), sizeof(msg.username)-1); strncpy(msg.content, text.toStdString().c_str(), sizeof(msg.content)-1);
+        Message msg{}; msg.type = MSG_GROUP_MESSAGE;
+        strncpy(msg.username, gname.toStdString().c_str(), sizeof(msg.username)-1);
+        strncpy(msg.content, text.toStdString().c_str(), sizeof(msg.content)-1);
         sendMessage(msg);
-        // append to own group view
-        QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-        QString key = target;
-        QString line = QString("[%1] [Me -> %2] %3").arg(now, gname, text);
-        conversations[key].append(line);
-        if (convoList->currentItem() && convoList->currentItem()->text() == key) {
-            logView->setPlainText(conversations[key].join("\n"));
-            logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
+        // optimistic append only when online
+        if (sockfd >= 0) {
+            QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+            QString key = target;
+            QString line = QString("[%1] [Me -> %2] %3").arg(now, gname, text);
+            conversations[key].append(line);
+            if (convoList->currentItem() && convoList->currentItem()->text() == key) {
+                logView->setPlainText(conversations[key].join("\n"));
+                logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
+            }
         }
     } else {
         // direct message to selected user
@@ -384,13 +476,15 @@ void MainWindow::onSendClicked() {
         strncpy(msg.username, target.toStdString().c_str(), sizeof(msg.username)-1);
         strncpy(msg.content, text.toStdString().c_str(), sizeof(msg.content)-1);
         sendMessage(msg);
-        // optimistically append to own view
-        QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
-        QString line = QString("[%1] [Me -> %2] %3").arg(now, target, text);
-        conversations[target].append(line);
-        if (convoList->currentItem() && convoList->currentItem()->text() == target) {
-            logView->setPlainText(conversations[target].join("\n"));
-            logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
+        // optimistic append only when online (sendMessage will append queued UI when offline)
+        if (sockfd >= 0) {
+            QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+            QString line = QString("[%1] [Me -> %2] %3").arg(now, target, text);
+            conversations[target].append(line);
+            if (convoList->currentItem() && convoList->currentItem()->text() == target) {
+                logView->setPlainText(conversations[target].join("\n"));
+                logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
+            }
         }
     }
     input->clear();
@@ -878,9 +972,6 @@ void MainWindow::pollMessages() {
             QString key = QString("Group:%1").arg(group);
             conversations["All"].append(line);
             conversations[key].append(line);
-            // ensure list has this group conversation
-            cout << "Received group message for " << key.toStdString() << endl;
-            cout << "Message: " << payload.toStdString() << endl;
             bool foundg = false;
             for (int i = 0; i < convoList->count(); ++i) {
                 if (convoList->item(i)->text() == key) { foundg = true; break; }

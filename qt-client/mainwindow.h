@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QListWidget>
+#include <QList>
 #include <QMap>
 #include <QStringList>
 #include <QJsonDocument>
@@ -38,10 +39,12 @@ private slots:
     void pollMessages();
     void attemptConnect();
     void scheduleReconnect();
+    void onDisconnectClicked();
 
 private:
     // helpers
     void sendMessage(const Message &msg);
+    void flushPendingMessages();
     void setLoggedInState(bool loggedIn);
     bool recvMessageBlocking(Message &out, int timeoutMs = 2000);
     void cleanupSocket();
@@ -68,6 +71,9 @@ private:
     // friend / utility buttons
     QPushButton *listFriendsBtn;
     QPushButton *usersBtn;
+    // connection controls
+    QPushButton *connectBtn;
+    QPushButton *disconnectBtn;
     // group buttons
     QPushButton *createGroupBtn;
     QPushButton *listGroupsBtn;
@@ -76,4 +82,5 @@ private:
     QString currentUser;
     bool loggedIn = false;
     QMap<QString, QStringList> conversations; // username -> lines
+    QList<Message> pendingMessages; // messages queued while offline
 };
