@@ -78,6 +78,39 @@ public:
             if (err) sqlite3_free(err);
             return false;
         }
+        // Groups table
+        const char *sql4 =
+            "CREATE TABLE IF NOT EXISTS groups (name TEXT PRIMARY KEY, owner TEXT);";
+        rc = sqlite3_exec(db, sql4, nullptr, nullptr, &err);
+        if (rc != SQLITE_OK) {
+            cerr << COLOR_RED << "Failed to create groups table: " << (err?err:"") << COLOR_RESET << endl;
+            if (err) sqlite3_free(err);
+            return false;
+        }
+        // Group members table
+        const char *sql5 =
+            "CREATE TABLE IF NOT EXISTS group_members (groupname TEXT, member TEXT, PRIMARY KEY(groupname,member));";
+        rc = sqlite3_exec(db, sql5, nullptr, nullptr, &err);
+        if (rc != SQLITE_OK) {
+            cerr << COLOR_RED << "Failed to create group_members table: " << (err?err:"") << COLOR_RESET << endl;
+            if (err) sqlite3_free(err);
+            return false;
+        }
+        // Group messages table
+        const char *sql6 =
+            "CREATE TABLE IF NOT EXISTS group_messages ("
+            " id INTEGER PRIMARY KEY AUTOINCREMENT,"
+            " groupname TEXT NOT NULL,"
+            " sender TEXT NOT NULL,"
+            " content TEXT NOT NULL,"
+            " ts INTEGER NOT NULL DEFAULT (strftime('%s','now'))"
+            " );";
+        rc = sqlite3_exec(db, sql6, nullptr, nullptr, &err);
+        if (rc != SQLITE_OK) {
+            cerr << COLOR_RED << "Failed to create group_messages table: " << (err?err:"") << COLOR_RESET << endl;
+            if (err) sqlite3_free(err);
+            return false;
+        }
         return true;
     }
 
@@ -172,6 +205,174 @@ public:
         return (rc == SQLITE_DONE);
     }
 
+    // Group helpers
+    bool createGroup(const string& groupname, const string& owner) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return false;
+        string g = trimStr(groupname);
+        string o = trimStr(owner);
+        if (g.empty() || o.empty()) return false;
+        // ensure group doesn't already exist
+        const char *chk = "SELECT 1 FROM groups WHERE name = ? LIMIT 1;";
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, chk, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, g.c_str(), -1, SQLITE_STATIC);
+        int rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        if (rc == SQLITE_ROW) return false; // exists
+
+        const char *ins = "INSERT INTO groups(name,owner) VALUES(?,?);";
+        if (sqlite3_prepare_v2(db, ins, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, g.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, o.c_str(), -1, SQLITE_STATIC);
+        rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        if (rc != SQLITE_DONE) return false;
+        // add owner as member
+        const char *minsert = "INSERT OR REPLACE INTO group_members(groupname,member) VALUES(?,?);";
+        if (sqlite3_prepare_v2(db, minsert, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, g.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, o.c_str(), -1, SQLITE_STATIC);
+        rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        return (rc == SQLITE_DONE);
+    }
+
+    bool addUserToGroup(const string& groupname, const string& user) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return false;
+        string g = trimStr(groupname);
+        string u = trimStr(user);
+        if (g.empty() || u.empty()) return false;
+        // ensure group exists
+        const char *chk = "SELECT 1 FROM groups WHERE name = ? LIMIT 1;";
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, chk, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, g.c_str(), -1, SQLITE_STATIC);
+        int rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        if (rc != SQLITE_ROW) return false;
+        const char *ins = "INSERT OR REPLACE INTO group_members(groupname,member) VALUES(?,?);";
+        if (sqlite3_prepare_v2(db, ins, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, g.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, u.c_str(), -1, SQLITE_STATIC);
+        rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        return (rc == SQLITE_DONE);
+    }
+
+    bool removeUserFromGroup(const string& groupname, const string& user) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return false;
+        string g = trimStr(groupname);
+        string u = trimStr(user);
+        if (g.empty() || u.empty()) return false;
+        const char *del = "DELETE FROM group_members WHERE groupname = ? AND member = ?;";
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, del, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, g.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, u.c_str(), -1, SQLITE_STATIC);
+        int rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        int changes = sqlite3_changes(db);
+        return (rc == SQLITE_DONE && changes > 0);
+    }
+
+    bool isMemberOfGroup(const string& groupname, const string& user) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return false;
+        const char *q = "SELECT 1 FROM group_members WHERE groupname = ? AND member = ? LIMIT 1;";
+        sqlite3_stmt *stmt = nullptr;
+        bool ok = false;
+        if (sqlite3_prepare_v2(db, q, -1, &stmt, nullptr) == SQLITE_OK) {
+            sqlite3_bind_text(stmt, 1, groupname.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 2, user.c_str(), -1, SQLITE_STATIC);
+            if (sqlite3_step(stmt) == SQLITE_ROW) ok = true;
+            sqlite3_finalize(stmt);
+        }
+        return ok;
+    }
+
+    vector<string> listGroupsForUser(const string& user) {
+        vector<string> out;
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return out;
+        const char *sql = "SELECT groupname FROM group_members WHERE member = ? ORDER BY groupname;";
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return out;
+        sqlite3_bind_text(stmt, 1, user.c_str(), -1, SQLITE_STATIC);
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const unsigned char *g = sqlite3_column_text(stmt, 0);
+            if (g) out.push_back(reinterpret_cast<const char*>(g));
+        }
+        sqlite3_finalize(stmt);
+        return out;
+    }
+
+    bool saveGroupMessage(const string& groupname, const string& sender, const string& content) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return false;
+        const char *ins = "INSERT INTO group_messages(groupname,sender,content) VALUES(?,?,?);";
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, ins, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, groupname.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, sender.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 3, content.c_str(), -1, SQLITE_STATIC);
+        int rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        return (rc == SQLITE_DONE);
+    }
+
+    string getGroupHistory(const string& groupname, int limit = 200) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return string("No DB");
+        const char *q =
+            "SELECT sender, content, ts FROM group_messages WHERE groupname = ? ORDER BY id ASC LIMIT ?;";
+        sqlite3_stmt *stmt = nullptr;
+        string out;
+        if (sqlite3_prepare_v2(db, q, -1, &stmt, nullptr) != SQLITE_OK) return string("DB error");
+        sqlite3_bind_text(stmt, 1, groupname.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 2, limit);
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const unsigned char *sender = sqlite3_column_text(stmt, 0);
+            const unsigned char *body = sqlite3_column_text(stmt, 1);
+            int ts = sqlite3_column_int(stmt, 2);
+            time_t t = static_cast<time_t>(ts);
+            struct tm lt;
+            localtime_r(&t, &lt);
+            char tbuf[64];
+            strftime(tbuf, sizeof(tbuf), "%Y-%m-%d %H:%M:%S", &lt);
+            string line;
+            line.reserve(128);
+            if (tbuf) line += string("[") + tbuf + "] ";
+            if (sender) line += reinterpret_cast<const char*>(sender);
+            line += ": ";
+            if (body) line += reinterpret_cast<const char*>(body);
+            line += "\n";
+            if (out.size() + line.size() > BUFFER_SIZE - 32) { out += "...\n"; break; }
+            out += line;
+        }
+        sqlite3_finalize(stmt);
+        if (out.empty()) out = string("(no messages)\n");
+        return out;
+    }
+
+    vector<string> listGroupMembers(const string& groupname) {
+        vector<string> out;
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return out;
+        const char *sql = "SELECT member FROM group_members WHERE groupname = ? ORDER BY member;";
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return out;
+        sqlite3_bind_text(stmt, 1, groupname.c_str(), -1, SQLITE_STATIC);
+        while (sqlite3_step(stmt) == SQLITE_ROW) {
+            const unsigned char *m = sqlite3_column_text(stmt, 0);
+            if (m) out.push_back(reinterpret_cast<const char*>(m));
+        }
+        sqlite3_finalize(stmt);
+        return out;
+    }
+
     bool acceptFriendRequest(const string& from, const string& to) {
         lock_guard<mutex> lock(users_mutex);
         if (!db) return false;
@@ -221,6 +422,24 @@ public:
         return (rc2 == SQLITE_DONE);
     }
 
+    bool refuseFriendRequest(const string& from, const string& to) {
+        lock_guard<mutex> lock(users_mutex);
+        if (!db) return false;
+        string ufrom = trimStr(from);
+        string uto = trimStr(to);
+        if (ufrom.empty() || uto.empty()) return false;
+        const char *sql = "DELETE FROM friends WHERE user = ? AND friend = ? AND status = 'pending';";
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return false;
+        sqlite3_bind_text(stmt, 1, ufrom.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 2, uto.c_str(), -1, SQLITE_STATIC);
+        int rc = sqlite3_step(stmt);
+        sqlite3_finalize(stmt);
+        // sqlite3_step returns SQLITE_DONE even if no rows deleted; check changes
+        int changes = sqlite3_changes(db);
+        return (rc == SQLITE_DONE && changes > 0);
+    }
+
     vector<string> listFriends(const string& username) {
         vector<string> out;
         lock_guard<mutex> lock(users_mutex);
@@ -239,7 +458,6 @@ public:
         return out;
     }
 
-    // List all registered users and friendship status relative to viewer
     string friendStatus(const string& viewer, const string& other) {
         if (viewer == other) return string("self");
         const char *q = "SELECT status FROM friends WHERE user = ? AND friend = ? LIMIT 1;";
@@ -488,7 +706,6 @@ public:
         bool authed = false;
         while (bytes_received > 0) {
             if (msg.type == MSG_REGISTER) {
-                // msg.username and msg.content contain username and password
                 string uname = string(msg.username);
                 string pwd = string(msg.content);
                 Message resp{};
@@ -498,7 +715,15 @@ public:
                     resp.content[0] = AUTH_FAILURE;
                     send(client_socket, &resp, sizeof(Message), 0);
                 } else {
-                    if (addUser(uname, pwd)) resp.content[0] = AUTH_SUCCESS; else resp.content[0] = AUTH_FAILURE;
+                    if (addUser(uname, pwd)) {
+                        resp.content[0] = AUTH_SUCCESS;
+                        send(client_socket, &resp, sizeof(Message), 0);
+                        client_info.username = uname;
+                        authed = true;
+                        break;
+                    }
+                         
+                    else resp.content[0] = AUTH_FAILURE;
                     send(client_socket, &resp, sizeof(Message), 0);
                 }
             }
@@ -590,6 +815,96 @@ public:
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
             }
+            else if (msg.type == MSG_GROUP_CREATE) {
+                string gname = trimStr(string(msg.content));
+                bool ok = createGroup(gname, client_info.username);
+                Message resp{}; resp.type = MSG_GROUP_CREATE_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_GROUP_ADD) {
+                // Expect: msg.username = groupname, msg.content = username-to-add
+                string gname = trimStr(string(msg.username));
+                string who = trimStr(string(msg.content));
+                bool ok = false;
+                // only members can add (simple policy)
+                if (isMemberOfGroup(gname, client_info.username)) ok = addUserToGroup(gname, who);
+                Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_GROUP_REMOVE) {
+                // Expect: msg.username = groupname, msg.content = username-to-remove
+                string gname = trimStr(string(msg.username));
+                string who = trimStr(string(msg.content));
+                bool ok = false;
+                // only members can remove (or owner could have been enforced)
+                if (isMemberOfGroup(gname, client_info.username)) ok = removeUserFromGroup(gname, who);
+                Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_GROUP_LEAVE) {
+                // Expect: msg.content = groupname
+                string gname = trimStr(string(msg.content));
+                bool ok = removeUserFromGroup(gname, client_info.username);
+                Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_GROUP_MESSAGE) {
+                // msg.username = groupname, msg.content = body
+                string gname = trimStr(string(msg.username));
+                string body = string(msg.content);
+                bool ok = false;
+                if (!gname.empty() && !body.empty() && isMemberOfGroup(gname, client_info.username)) {
+                    ok = saveGroupMessage(gname, client_info.username, body);
+                    if (ok) {
+                        // deliver to online members (excluding sender)
+                        vector<string> members = listGroupMembers(gname);
+                        lock_guard<mutex> lock(clients_mutex);
+                        for (const auto &c : clients) {
+                            if (c.username == client_info.username) continue;
+                            if (find(members.begin(), members.end(), c.username) != members.end()) {
+                                Message gm{}; 
+                                gm.type = MSG_GROUP_TEXT; 
+                                strncpy(gm.username, gname.c_str(), sizeof(gm.username)-1);
+                                // content: sender:body
+                                string payload = client_info.username + string(": ") + body;
+                                strncpy(gm.content, payload.c_str(), sizeof(gm.content)-1);
+                                send(c.socket, &gm, sizeof(Message), 0);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (msg.type == MSG_GROUP_HISTORY_REQUEST) {
+                string gname = trimStr(string(msg.username));
+                string listing;
+                if (!gname.empty() && isMemberOfGroup(gname, client_info.username)) {
+                    listing = getGroupHistory(gname, 500);
+                } else {
+                    listing = string("Invalid group or access denied\n");
+                }
+                Message resp{}; resp.type = MSG_GROUP_HISTORY_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                strncpy(resp.content, listing.c_str(), sizeof(resp.content)-1);
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_GROUP_LIST_REQUEST) {
+                auto groups = listGroupsForUser(client_info.username);
+                Message resp{}; resp.type = MSG_GROUP_LIST_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                string combined;
+                for (size_t i = 0; i < groups.size(); ++i) { combined += groups[i]; if (i+1<groups.size()) combined += ", "; }
+                strncpy(resp.content, combined.c_str(), sizeof(resp.content)-1);
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
+            else if (msg.type == MSG_FRIEND_REFUSE) {
+                string from = string(msg.content); // the user who requested
+                bool ok = refuseFriendRequest(from, client_info.username);
+                Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
+                send(client_socket, &resp, sizeof(Message), 0);
+            }
             else if (msg.type == MSG_FRIEND_LIST_REQUEST) {
                 auto friends = listFriends(client_info.username);
                 Message resp{}; resp.type = MSG_FRIEND_LIST_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
@@ -631,7 +946,7 @@ public:
                                 strncpy(dm.username, client_info.username.c_str(), sizeof(dm.username)-1);
                                 strncpy(dm.content, body.c_str(), sizeof(dm.content)-1);
                           // deliver DM to online recipient
-                          send(c.socket, &dm, sizeof(Message), 0);
+                                send(c.socket, &dm, sizeof(Message), 0);
                                 break;
                             }
                         }
@@ -647,7 +962,9 @@ public:
                 } else {
                     listing = string("Invalid peer\n");
                 }
-                Message resp{}; resp.type = MSG_HISTORY_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                Message resp{}; 
+                resp.type = MSG_HISTORY_RESPONSE; 
+                strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 strncpy(resp.content, listing.c_str(), sizeof(resp.content)-1);
                 send(client_socket, &resp, sizeof(Message), 0);
             }

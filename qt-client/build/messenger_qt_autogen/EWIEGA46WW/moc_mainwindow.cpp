@@ -23,7 +23,7 @@ QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
     QByteArrayData data[14];
-    char stringdata0[223];
+    char stringdata0[217];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -33,28 +33,28 @@ struct qt_meta_stringdata_MainWindow_t {
 static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
-QT_MOC_LITERAL(1, 11, 16), // "onConnectClicked"
-QT_MOC_LITERAL(2, 28, 0), // ""
-QT_MOC_LITERAL(3, 29, 17), // "onRegisterClicked"
-QT_MOC_LITERAL(4, 47, 14), // "onLoginClicked"
-QT_MOC_LITERAL(5, 62, 13), // "onSendClicked"
-QT_MOC_LITERAL(6, 76, 18), // "onAddFriendClicked"
-QT_MOC_LITERAL(7, 95, 21), // "onAcceptFriendClicked"
-QT_MOC_LITERAL(8, 117, 20), // "onListFriendsClicked"
-QT_MOC_LITERAL(9, 138, 17), // "onUnfriendClicked"
-QT_MOC_LITERAL(10, 156, 14), // "onUsersClicked"
-QT_MOC_LITERAL(11, 171, 16), // "onHistoryClicked"
-QT_MOC_LITERAL(12, 188, 21), // "onConversationChanged"
-QT_MOC_LITERAL(13, 210, 12) // "pollMessages"
+QT_MOC_LITERAL(1, 11, 17), // "onRegisterClicked"
+QT_MOC_LITERAL(2, 29, 0), // ""
+QT_MOC_LITERAL(3, 30, 14), // "onLoginClicked"
+QT_MOC_LITERAL(4, 45, 13), // "onSendClicked"
+QT_MOC_LITERAL(5, 59, 20), // "onListFriendsClicked"
+QT_MOC_LITERAL(6, 80, 14), // "onUsersClicked"
+QT_MOC_LITERAL(7, 95, 20), // "onCreateGroupClicked"
+QT_MOC_LITERAL(8, 116, 15), // "onGroupsClicked"
+QT_MOC_LITERAL(9, 132, 16), // "onHistoryClicked"
+QT_MOC_LITERAL(10, 149, 21), // "onConversationChanged"
+QT_MOC_LITERAL(11, 171, 12), // "pollMessages"
+QT_MOC_LITERAL(12, 184, 14), // "attemptConnect"
+QT_MOC_LITERAL(13, 199, 17) // "scheduleReconnect"
 
     },
-    "MainWindow\0onConnectClicked\0\0"
-    "onRegisterClicked\0onLoginClicked\0"
-    "onSendClicked\0onAddFriendClicked\0"
-    "onAcceptFriendClicked\0onListFriendsClicked\0"
-    "onUnfriendClicked\0onUsersClicked\0"
+    "MainWindow\0onRegisterClicked\0\0"
+    "onLoginClicked\0onSendClicked\0"
+    "onListFriendsClicked\0onUsersClicked\0"
+    "onCreateGroupClicked\0onGroupsClicked\0"
     "onHistoryClicked\0onConversationChanged\0"
-    "pollMessages"
+    "pollMessages\0attemptConnect\0"
+    "scheduleReconnect"
 };
 #undef QT_MOC_LITERAL
 
@@ -108,18 +108,18 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         auto *_t = static_cast<MainWindow *>(_o);
         (void)_t;
         switch (_id) {
-        case 0: _t->onConnectClicked(); break;
-        case 1: _t->onRegisterClicked(); break;
-        case 2: _t->onLoginClicked(); break;
-        case 3: _t->onSendClicked(); break;
-        case 4: _t->onAddFriendClicked(); break;
-        case 5: _t->onAcceptFriendClicked(); break;
-        case 6: _t->onListFriendsClicked(); break;
-        case 7: _t->onUnfriendClicked(); break;
-        case 8: _t->onUsersClicked(); break;
-        case 9: _t->onHistoryClicked(); break;
-        case 10: _t->onConversationChanged(); break;
-        case 11: _t->pollMessages(); break;
+        case 0: _t->onRegisterClicked(); break;
+        case 1: _t->onLoginClicked(); break;
+        case 2: _t->onSendClicked(); break;
+        case 3: _t->onListFriendsClicked(); break;
+        case 4: _t->onUsersClicked(); break;
+        case 5: _t->onCreateGroupClicked(); break;
+        case 6: _t->onGroupsClicked(); break;
+        case 7: _t->onHistoryClicked(); break;
+        case 8: _t->onConversationChanged(); break;
+        case 9: _t->pollMessages(); break;
+        case 10: _t->attemptConnect(); break;
+        case 11: _t->scheduleReconnect(); break;
         default: ;
         }
     }

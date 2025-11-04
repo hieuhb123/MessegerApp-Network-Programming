@@ -31,7 +31,7 @@
 // Friend system
 #define MSG_FRIEND_REQUEST 20
 #define MSG_FRIEND_ACCEPT 21
-#define MSG_FRIEND_DECLINE 22
+#define MSG_FRIEND_REFUSE 22
 #define MSG_FRIEND_LIST_REQUEST 23
 #define MSG_FRIEND_LIST_RESPONSE 24
 // Unfriend
@@ -47,6 +47,19 @@
 // Client requests conversation history with a peer; server responds with newline-delimited lines
 #define MSG_HISTORY_REQUEST 29
 #define MSG_HISTORY_RESPONSE 30
+
+// Group chat
+#define MSG_GROUP_CREATE 40
+#define MSG_GROUP_CREATE_RESPONSE 41
+#define MSG_GROUP_ADD 42
+#define MSG_GROUP_REMOVE 43
+#define MSG_GROUP_LEAVE 44
+#define MSG_GROUP_MESSAGE 45
+#define MSG_GROUP_TEXT 46
+#define MSG_GROUP_HISTORY_REQUEST 47
+#define MSG_GROUP_HISTORY_RESPONSE 48
+#define MSG_GROUP_LIST_REQUEST 49
+#define MSG_GROUP_LIST_RESPONSE 50
 
 // Color codes for terminal output
 #define COLOR_RESET   "\033[0m"
