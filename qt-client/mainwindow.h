@@ -45,6 +45,7 @@ private:
     // helpers
     void sendMessage(const Message &msg);
     void flushPendingMessages();
+    void appendLog(const QString &text);
     void setLoggedInState(bool loggedIn);
     bool recvMessageBlocking(Message &out, int timeoutMs = 2000);
     void cleanupSocket();
@@ -83,4 +84,5 @@ private:
     bool loggedIn = false;
     QMap<QString, QStringList> conversations; // username -> lines
     QList<Message> pendingMessages; // messages queued while offline
+    QFile logFile;
 };

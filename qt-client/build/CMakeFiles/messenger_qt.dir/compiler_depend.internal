@@ -828,6 +828,57 @@ CMakeFiles/messenger_qt.dir/mainwindow.cpp.o
  /usr/include/x86_64-linux-gnu/qt5/QtCore/qfile.h
  /usr/include/c++/11/cstring
  /home/bodoi/code/MessengerApp/qt-client/include/common.h
+ /usr/include/x86_64-linux-gnu/sys/socket.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_iovec.h
+ /usr/include/x86_64-linux-gnu/bits/socket.h
+ /usr/include/x86_64-linux-gnu/bits/socket_type.h
+ /usr/include/x86_64-linux-gnu/bits/sockaddr.h
+ /usr/include/x86_64-linux-gnu/asm/socket.h
+ /usr/include/asm-generic/socket.h
+ /usr/include/linux/posix_types.h
+ /usr/include/linux/stddef.h
+ /usr/include/x86_64-linux-gnu/asm/posix_types.h
+ /usr/include/x86_64-linux-gnu/asm/posix_types_64.h
+ /usr/include/asm-generic/posix_types.h
+ /usr/include/x86_64-linux-gnu/asm/bitsperlong.h
+ /usr/include/asm-generic/bitsperlong.h
+ /usr/include/x86_64-linux-gnu/asm/sockios.h
+ /usr/include/asm-generic/sockios.h
+ /usr/include/x86_64-linux-gnu/bits/types/struct_osockaddr.h
+ /usr/include/netinet/in.h
+ /usr/include/x86_64-linux-gnu/bits/in.h
+ /usr/include/arpa/inet.h
+ /usr/include/unistd.h
+ /usr/include/x86_64-linux-gnu/bits/posix_opt.h
+ /usr/include/x86_64-linux-gnu/bits/environments.h
+ /usr/include/x86_64-linux-gnu/bits/confname.h
+ /usr/include/x86_64-linux-gnu/bits/getopt_posix.h
+ /usr/include/x86_64-linux-gnu/bits/getopt_core.h
+ /usr/include/x86_64-linux-gnu/bits/unistd_ext.h
+ /usr/include/linux/close_range.h
+ /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QInputDialog
+ /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qinputdialog.h
+ /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qlineedit.h
+ /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h
+ /usr/include/x86_64-linux-gnu/qt5/QtCore/QDateTime
+ /usr/include/x86_64-linux-gnu/qt5/QtCore/qdatetime.h
+ /usr/include/x86_64-linux-gnu/qt5/QtCore/QTextStream
+ /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h
+ /usr/include/c++/11/iostream
+ /usr/include/c++/11/ostream
+ /usr/include/c++/11/ios
+ /usr/include/c++/11/bits/basic_ios.h
+ /usr/include/c++/11/bits/locale_facets.h
+ /usr/include/c++/11/cwctype
+ /usr/include/wctype.h
+ /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h
+ /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_base.h
+ /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_inline.h
+ /usr/include/c++/11/bits/locale_facets.tcc
+ /usr/include/c++/11/bits/basic_ios.tcc
+ /usr/include/c++/11/bits/ostream.tcc
+ /usr/include/c++/11/istream
+ /usr/include/c++/11/bits/istream.tcc
  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/QScrollBar
  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qscrollbar.h
 

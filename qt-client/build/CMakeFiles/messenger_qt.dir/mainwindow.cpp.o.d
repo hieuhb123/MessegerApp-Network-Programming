@@ -392,6 +392,8 @@ CMakeFiles/messenger_qt.dir/mainwindow.cpp.o: \
  /usr/include/x86_64-linux-gnu/qt5/QtWidgets/qdialog.h \
  /usr/include/x86_64-linux-gnu/qt5/QtCore/QDateTime \
  /usr/include/x86_64-linux-gnu/qt5/QtCore/qdatetime.h \
+ /usr/include/x86_64-linux-gnu/qt5/QtCore/QTextStream \
+ /usr/include/x86_64-linux-gnu/qt5/QtCore/qtextstream.h \
  /usr/include/c++/11/iostream /usr/include/c++/11/ostream \
  /usr/include/c++/11/ios /usr/include/c++/11/bits/basic_ios.h \
  /usr/include/c++/11/bits/locale_facets.h /usr/include/c++/11/cwctype \

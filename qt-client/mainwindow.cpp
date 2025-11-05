@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <QInputDialog>
 #include <QDateTime>
+#include <QTextStream>
 
 #include <cstring>
 #include <cerrno>
@@ -23,6 +24,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
 
     logView = new QPlainTextEdit(central);
     logView->setReadOnly(true);
+    // open activity log file for append
+    logFile.setFileName("client_activity.log");
+    if (!logFile.open(QIODevice::Append | QIODevice::Text)) {
+        // fallback: still continue but emit to UI and attempt to log via appendLog
+        appendLog("Warning: failed to open client_activity.log for writing");
+    }
     input = new QLineEdit(central);
 
     // server / connection UI removed (manual connect not used)
@@ -118,12 +125,26 @@ MainWindow::~MainWindow() {
         cleanupSocket();
 }
 
+void MainWindow::appendLog(const QString &text) {
+    // timestamped line for file, but show plain text in UI (no timestamp duplication)
+    QString ts = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+    QString line = QString("[%1] %2").arg(ts, text);
+    // append to UI
+    conversations["All"].append(text);
+    // append to file
+    if (logFile.isOpen()) {
+        QTextStream out(&logFile);
+        out << line << "\n";
+        out.flush();
+    }
+}
+
     void MainWindow::attemptConnect() {
         if (sockfd >= 0) return; // already connected
         const char *ip = SERVER_IP;
         int fd = ::socket(AF_INET, SOCK_STREAM, 0);
         if (fd < 0) {
-            logView->appendPlainText("Failed to create socket");
+            appendLog("Failed to create socket");
             scheduleReconnect();
             return;
         }
@@ -133,7 +154,7 @@ MainWindow::~MainWindow() {
         server_addr.sin_family = AF_INET;
         server_addr.sin_port = htons(PORT);
         if (::inet_pton(AF_INET, ip, &server_addr.sin_addr) <= 0) {
-            logView->appendPlainText("Invalid server IP address");
+            appendLog("Invalid server IP address");
             ::close(fd);
             scheduleReconnect();
             return;
@@ -141,7 +162,7 @@ MainWindow::~MainWindow() {
 
         if (::connect(fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
             ::close(fd);
-            logView->appendPlainText("Failed to connect to server — will retry");
+            appendLog("Failed to connect to server — will retry");
             scheduleReconnect();
             return;
         }
@@ -149,7 +170,7 @@ MainWindow::~MainWindow() {
         // success
         sockfd = fd;
         if (reconnectTimer && reconnectTimer->isActive()) reconnectTimer->stop();
-        logView->appendPlainText("Connected to server (auto-connect)");
+        appendLog("Connected to server (auto-connect)");
             if (connectBtn) connectBtn->setEnabled(false);
             if (disconnectBtn) disconnectBtn->setEnabled(true);
         // If not logged in, try auto-login; otherwise flush any queued messages
@@ -170,7 +191,7 @@ MainWindow::~MainWindow() {
         if (recvMessageBlocking(resp, 3000) && resp.type == MSG_AUTH_RESPONSE && resp.content[0] == AUTH_SUCCESS) {
             currentUser = user;
             setLoggedInState(true);
-            logView->appendPlainText("Auto-login success");
+            appendLog("Auto-login success");
             // start polling incoming chat messages
             if (!pollTimer) {
                 pollTimer = new QTimer(this);
@@ -181,14 +202,14 @@ MainWindow::~MainWindow() {
             // flush any messages queued while offline
             flushPendingMessages();
         } else {
-            logView->appendPlainText("Auto-login failed or timed out");
+            appendLog("Auto-login failed or timed out");
         }
     }
     void MainWindow::scheduleReconnect() {
         if (!reconnectTimer) return;
         if (!reconnectTimer->isActive()) {
             reconnectTimer->start();
-            logView->appendPlainText("Reconnecting in " + QString::number(reconnectIntervalMs/1000.0) + "s...");
+            appendLog("Reconnecting in " + QString::number(reconnectIntervalMs/1000.0) + "s...");
         }
     }
 void MainWindow::cleanupSocket() {
@@ -208,10 +229,10 @@ void MainWindow::onDisconnectClicked() {
         // mark logged out
     loggedIn = false;
     sendBtn->setEnabled(true);
-    logView->appendPlainText("Disconnected (manual)");
+    appendLog("Disconnected (manual)");
 
     // keep loggedIn state — allow sending which will be queued and flushed on reconnect
-    logView->appendPlainText("Disconnected (manual). Chat messages will be queued and sent when reconnected.");
+    appendLog("Disconnected (manual). Chat messages will be queued and sent when reconnected.");
 }
 void MainWindow::sendMessage(const Message &msg) {
     // If this is a chat message and we're offline, queue it for later send
@@ -224,11 +245,11 @@ void MainWindow::sendMessage(const Message &msg) {
                 QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
                 QString line = QString("[%1] [Me -> %2] %3 (queued)").arg(now, target, QString::fromUtf8(msg.content));
                 conversations[target].append(line);
-                if (convoList->currentItem() && convoList->currentItem()->text() == target) {
+                    if (convoList->currentItem() && convoList->currentItem()->text() == target) {
                     logView->setPlainText(conversations[target].join("\n"));
                     logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
                 } else {
-                    logView->appendPlainText(line);
+                    appendLog(line);
                 }
             } else if (msg.type == MSG_GROUP_MESSAGE) {
                 QString gname = QString::fromUtf8(msg.username);
@@ -236,34 +257,34 @@ void MainWindow::sendMessage(const Message &msg) {
                 QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
                 QString line = QString("[%1] [Me -> %2] %3 (queued)").arg(now, gname, QString::fromUtf8(msg.content));
                 conversations[key].append(line);
-                if (convoList->currentItem() && convoList->currentItem()->text() == key) {
+                    if (convoList->currentItem() && convoList->currentItem()->text() == key) {
                     logView->setPlainText(conversations[key].join("\n"));
                     logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
                 } else {
-                    logView->appendPlainText(line);
+                    appendLog(line);
                 }
             } else if (msg.type == MSG_TEXT) {
                 QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
                 QString line = QString("[%1] [Me] %2 (queued)").arg(now, QString::fromUtf8(msg.content));
                 conversations["All"].append(line);
-                if (convoList->currentItem() && convoList->currentItem()->text() == "All") {
+                    if (convoList->currentItem() && convoList->currentItem()->text() == "All") {
                     logView->setPlainText(conversations["All"].join("\n"));
                     logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
                 } else {
-                    logView->appendPlainText(line);
+                    appendLog(line);
                 }
             }
-            logView->appendPlainText("Message queued for later delivery (offline)");
+            appendLog("Message queued for later delivery (offline)");
             return;
         }
-        logView->appendPlainText("Not connected");
+        appendLog("Not connected");
         return;
     }
     ssize_t sent = ::send(sockfd, &msg, sizeof(Message), 0);
     if (sent < 0) {
-        logView->appendPlainText(QString("SEND error: %1").arg(strerror(errno)));
+        appendLog(QString("SEND error: %1").arg(strerror(errno)));
     } else {
-        logView->appendPlainText(QString("-> SENT type=%1 bytes=%2").arg(msg.type).arg((long long)sent));
+        appendLog(QString("-> SENT type=%1 bytes=%2").arg(msg.type).arg((long long)sent));
     }
 }
 
@@ -276,7 +297,7 @@ void MainWindow::flushPendingMessages() {
         if (s == (ssize_t)sizeof(Message)) {
             ++sentCount;
         } else {
-            logView->appendPlainText("Failed to flush a queued message (will retry later)");
+            appendLog("Failed to flush a queued message (will retry later)");
             // stop here; keep remaining messages queued
             break;
         }
@@ -284,7 +305,7 @@ void MainWindow::flushPendingMessages() {
     if (sentCount > 0) {
         // remove the first sentCount messages
         for (int i = 0; i < sentCount; ++i) pendingMessages.removeFirst();
-        logView->appendPlainText(QString("Flushed %1 queued message(s)").arg(sentCount));
+        appendLog(QString("Flushed %1 queued message(s)").arg(sentCount));
     }
 }
 
@@ -292,18 +313,18 @@ bool MainWindow::recvMessageBlocking(Message &out, int timeoutMs) {
     if (sockfd < 0) return false;
     ssize_t got = ::recv(sockfd, &out, sizeof(Message), MSG_WAITALL);
     if (got == 0) {
-        logView->appendPlainText("Disconnected by server");
+        appendLog("Disconnected by server");
         cleanupSocket();
         return false;
     }
     if (got < 0) {
-        logView->appendPlainText("Socket recv error");
+        appendLog("Socket recv error");
         cleanupSocket();
         return false;
     }
     if (got == (ssize_t)sizeof(Message)) {
         // quick debug: log received type
-        logView->appendPlainText(QString("<- RECV type=%1 from=%2").arg(out.type).arg(QString::fromUtf8(out.username)));
+        appendLog(QString("<- RECV type=%1 from=%2").arg(out.type).arg(QString::fromUtf8(out.username)));
         return true;
     }
     return false;
@@ -324,13 +345,13 @@ void MainWindow::setLoggedInState(bool loggedIn_) {
 
 void MainWindow::onRegisterClicked() {
     if (sockfd < 0) {
-        logView->appendPlainText("Not connected");
+        appendLog("Not connected");
         return;
     }
     QString user = usernameEdit->text();
     QString pass = passwordEdit->text();
     if (user.isEmpty() || user.size() > 31) {
-        logView->appendPlainText("Username must be 1-31 chars");
+        appendLog("Username must be 1-31 chars");
         return;
     }
     Message msg{};
@@ -343,7 +364,7 @@ void MainWindow::onRegisterClicked() {
         if (resp.content[0] == AUTH_SUCCESS) {
             currentUser = user;
             setLoggedInState(true);
-            logView->appendPlainText("Register success");
+            appendLog("Register success");
             // start polling incoming chat messages
             if (!pollTimer) {
                 pollTimer = new QTimer(this);
@@ -352,22 +373,22 @@ void MainWindow::onRegisterClicked() {
             }
             pollTimer->start();
         } else {
-            logView->appendPlainText("Register failed");
+            appendLog("Register failed");
         }
     } else {
-        logView->appendPlainText("No response for register");
+    appendLog("No response for register");
     }
 }
 
 void MainWindow::onLoginClicked() {
     if (sockfd < 0) {
-        logView->appendPlainText("Not connected");
+        appendLog("Not connected");
         return;
     }
     QString user = usernameEdit->text();
     QString pass = passwordEdit->text();
     if (user.isEmpty() || user.size() > 31) {
-        logView->appendPlainText("Username must be 1-31 chars");
+        appendLog("Username must be 1-31 chars");
         return;
     }
     Message msg{}, resp{};
@@ -378,7 +399,7 @@ void MainWindow::onLoginClicked() {
     if (recvMessageBlocking(resp, 3000) && resp.type == MSG_AUTH_RESPONSE && resp.content[0] == AUTH_SUCCESS) {
         currentUser = user;
         setLoggedInState(true);
-        logView->appendPlainText("Login success");
+    appendLog("Login success");
         if (!pollTimer) {
             pollTimer = new QTimer(this);
             connect(pollTimer, &QTimer::timeout, this, &MainWindow::pollMessages);
@@ -421,7 +442,7 @@ void MainWindow::onLoginClicked() {
                     if (convoList->item(i)->text() == currentSel) { convoList->setCurrentRow(i); restored = true; break; }
                 }
                 if (!restored) convoList->setCurrentRow(0);
-                logView->appendPlainText(QString("Friends updated (%1)").arg(names.size()));
+                appendLog(QString("Friends updated (%1)").arg(names.size()));
                 // Also request groups for this user and add them to convo list
                 Message gmsg{}; gmsg.type = MSG_GROUP_LIST_REQUEST; strncpy(gmsg.username, currentUser.toStdString().c_str(), sizeof(gmsg.username)-1); sendMessage(gmsg);
                 Message gresp{};
@@ -434,16 +455,16 @@ void MainWindow::onLoginClicked() {
                         QString key = QString("Group:%1").arg(g);
                         convoList->addItem(key);
                     }
-                    logView->appendPlainText(QString("Groups updated (%1)").arg(groups.size()));
+                    appendLog(QString("Groups updated (%1)").arg(groups.size()));
                 } else {
                     // no groups or failed response is non-fatal
                 }
             } else {
-                logView->appendPlainText("No friend list response");
+                appendLog("No friend list response");
             }
         }
     } else {
-        logView->appendPlainText("Login failed or timed out");
+    appendLog("Login failed or timed out");
     }
 }
 
@@ -493,14 +514,14 @@ void MainWindow::onSendClicked() {
 
 void MainWindow::onListFriendsClicked() {
     // Request server for all users with friendship status relative to current user
-    if (sockfd < 0) { logView->appendPlainText("Not connected"); return; }
+    if (sockfd < 0) { appendLog("Not connected"); return; }
     Message req{}; 
     req.type = MSG_ALL_USERS_STATUS_REQUEST; 
     strncpy(req.username, currentUser.toStdString().c_str(), sizeof(req.username)-1); 
     sendMessage(req);
     Message resp{};
     if (!(recvMessageBlocking(resp, 3000) && resp.type == MSG_ALL_USERS_STATUS_RESPONSE)) {
-        logView->appendPlainText("No users/status response");
+    appendLog("No users/status response");
         return;
     }
 
@@ -583,13 +604,13 @@ void MainWindow::onListFriendsClicked() {
         Message m{}; m.type = MSG_FRIEND_ACCEPT; strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
         sendMessage(m);
         Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
-            logView->appendPlainText("Accepted friend request from " + name);
+            appendLog("Accepted friend request from " + name);
             cur->setText(QString("%1 (friend)").arg(name));
             cur->setData(Qt::UserRole + 1, QString("friend"));
             acceptBtn->setEnabled(false);
             unfriendBtn->setEnabled(true);
         } else {
-            logView->appendPlainText("Failed to accept friend request from " + name);
+            appendLog("Failed to accept friend request from " + name);
         }
     });
 
@@ -599,14 +620,14 @@ void MainWindow::onListFriendsClicked() {
         Message m{}; m.type = MSG_FRIEND_REFUSE; strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
         sendMessage(m);
         Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
-            logView->appendPlainText("Refuse friend request from " + name);
+            appendLog("Refuse friend request from " + name);
             cur->setText(QString("%1 (none)").arg(name));
             cur->setData(Qt::UserRole + 1, QString("none"));
             acceptBtn->setEnabled(false);
             refuseBtn->setEnabled(false);
             unfriendBtn->setEnabled(false);
         } else {
-            logView->appendPlainText("Failed to refuse friend request from " + name);
+            appendLog("Failed to refuse friend request from " + name);
         }
     });
 
@@ -616,13 +637,13 @@ void MainWindow::onListFriendsClicked() {
         Message m{}; m.type = MSG_FRIEND_REMOVE; strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
         sendMessage(m);
         Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
-            logView->appendPlainText("Unfriended " + name);
+            appendLog("Unfriended " + name);
             cur->setText(QString("%1 (none)").arg(name));
             cur->setData(Qt::UserRole + 1, QString("none"));
             unfriendBtn->setEnabled(false);
             acceptBtn->setEnabled(false);
         } else {
-            logView->appendPlainText("Failed to unfriend " + name);
+            appendLog("Failed to unfriend " + name);
         }
     });
 
@@ -646,26 +667,26 @@ void MainWindow::onListFriendsClicked() {
 }
 
 void MainWindow::onCreateGroupClicked() {
-    if (sockfd < 0) { logView->appendPlainText("Not connected"); return; }
+    if (sockfd < 0) { appendLog("Not connected"); return; }
     bool ok;
     QString group = QInputDialog::getText(this, "Create Group", "Group name:", QLineEdit::Normal, "", &ok);
     if (!ok || group.isEmpty()) return;
     Message m{}; m.type = MSG_GROUP_CREATE; strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, group.toStdString().c_str(), sizeof(m.content)-1);
     sendMessage(m);
     Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_GROUP_CREATE_RESPONSE && r.content[0] == AUTH_SUCCESS) {
-        logView->appendPlainText("Group created: " + group);
+        appendLog("Group created: " + group);
         // optionally open chat
     } else {
-        logView->appendPlainText("Failed to create group");
+        appendLog("Failed to create group");
     }
 }
 
 void MainWindow::onGroupsClicked() {
-    if (sockfd < 0) { logView->appendPlainText("Not connected"); return; }
+    if (sockfd < 0) { appendLog("Not connected"); return; }
     Message req{}; req.type = MSG_GROUP_LIST_REQUEST; strncpy(req.username, currentUser.toStdString().c_str(), sizeof(req.username)-1); sendMessage(req);
     Message resp{};
     if (!(recvMessageBlocking(resp, 3000) && resp.type == MSG_GROUP_LIST_RESPONSE)) {
-        logView->appendPlainText("No group list response");
+        appendLog("No group list response");
         return;
     }
     QString payload = QString::fromUtf8(resp.content);
@@ -684,11 +705,11 @@ void MainWindow::onGroupsClicked() {
     QPushButton *removeMemberBtn = new QPushButton("Remove Member", &dlg);
     QPushButton *leaveBtn = new QPushButton("Leave Group", &dlg);
     QPushButton *openChatBtn = new QPushButton("Open Chat", &dlg);
-    QPushButton *historyBtnLocal = new QPushButton("History", &dlg);
+    QPushButton *membersBtn = new QPushButton("Members", &dlg);
     QPushButton *closeBtn = new QPushButton("Close", &dlg);
-    h->addWidget(addMemberBtn); h->addWidget(removeMemberBtn); h->addWidget(leaveBtn); h->addWidget(openChatBtn); h->addWidget(historyBtnLocal); h->addWidget(closeBtn);
+    h->addWidget(addMemberBtn); h->addWidget(removeMemberBtn); h->addWidget(leaveBtn); h->addWidget(openChatBtn); h->addWidget(membersBtn); h->addWidget(closeBtn);
     v->addLayout(h);
-    addMemberBtn->setEnabled(false); removeMemberBtn->setEnabled(false); leaveBtn->setEnabled(false); openChatBtn->setEnabled(false); historyBtnLocal->setEnabled(false);
+    addMemberBtn->setEnabled(false); removeMemberBtn->setEnabled(false); leaveBtn->setEnabled(false); openChatBtn->setEnabled(false); membersBtn->setEnabled(false);
 
     connect(list, &QListWidget::currentItemChanged, this, [=](QListWidgetItem *cur, QListWidgetItem*){
         bool ena = (cur != nullptr);
@@ -696,7 +717,7 @@ void MainWindow::onGroupsClicked() {
         removeMemberBtn->setEnabled(ena);
         leaveBtn->setEnabled(ena);
         openChatBtn->setEnabled(ena);
-        historyBtnLocal->setEnabled(ena);
+        membersBtn->setEnabled(ena);
     });
 
     connect(addMemberBtn, &QPushButton::clicked, this, [=]() {
@@ -704,8 +725,8 @@ void MainWindow::onGroupsClicked() {
         bool ok; QString who = QInputDialog::getText(this, "Add Member", "Username to add:", QLineEdit::Normal, "", &ok); if (!ok || who.isEmpty()) return;
         Message m{}; m.type = MSG_GROUP_ADD; strncpy(m.username, g.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, who.toStdString().c_str(), sizeof(m.content)-1); sendMessage(m);
         Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
-            logView->appendPlainText("Added " + who + " to " + g);
-        } else logView->appendPlainText("Failed to add member");
+            appendLog("Added " + who + " to " + g);
+        } else appendLog("Failed to add member");
     });
 
     connect(removeMemberBtn, &QPushButton::clicked, this, [=]() {
@@ -713,17 +734,42 @@ void MainWindow::onGroupsClicked() {
         bool ok; QString who = QInputDialog::getText(this, "Remove Member", "Username to remove:", QLineEdit::Normal, "", &ok); if (!ok || who.isEmpty()) return;
         Message m{}; m.type = MSG_GROUP_REMOVE; strncpy(m.username, g.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, who.toStdString().c_str(), sizeof(m.content)-1); sendMessage(m);
         Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
-            logView->appendPlainText("Removed " + who + " from " + g);
-        } else logView->appendPlainText("Failed to remove member");
+            appendLog("Removed " + who + " from " + g);
+        } else appendLog("Failed to remove member");
+    });
+
+    connect(membersBtn, &QPushButton::clicked, this, [=]() {
+        QListWidgetItem *cur = list->currentItem(); if (!cur) return;
+        QString g = cur->data(Qt::UserRole).toString();
+        // request members
+        Message m{}; m.type = MSG_GROUP_MEMBERS_REQUEST; strncpy(m.username, g.toStdString().c_str(), sizeof(m.username)-1);
+        sendMessage(m);
+        Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_GROUP_MEMBERS_RESPONSE) {
+            QString payload = QString::fromUtf8(r.content);
+            // show members in a simple dialog
+            QDialog md(this);
+            md.setWindowTitle(QString("Members of %1").arg(g));
+            QVBoxLayout *mv = new QVBoxLayout(&md);
+            QListWidget *ml = new QListWidget(&md);
+            QStringList members = payload.split(',', Qt::SkipEmptyParts);
+            for (QString &mm : members) { mm = mm.trimmed(); if (!mm.isEmpty()) ml->addItem(mm); }
+            mv->addWidget(ml);
+            QPushButton *closeM = new QPushButton("Close", &md);
+            mv->addWidget(closeM);
+            connect(closeM, &QPushButton::clicked, &md, &QDialog::accept);
+            md.exec();
+        } else {
+            appendLog("Failed to get group members");
+        }
     });
 
     connect(leaveBtn, &QPushButton::clicked, this, [=,&dlg]() {
         QListWidgetItem *cur = list->currentItem(); if (!cur) return; QString g = cur->data(Qt::UserRole).toString();
         Message m{}; m.type = MSG_GROUP_LEAVE; strncpy(m.content, g.toStdString().c_str(), sizeof(m.content)-1); sendMessage(m);
         Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
-            logView->appendPlainText("Left group " + g);
+            appendLog("Left group " + g);
             delete list->takeItem(list->row(cur));
-        } else logView->appendPlainText("Failed to leave group");
+        } else appendLog("Failed to leave group");
     });
 
     connect(openChatBtn, &QPushButton::clicked, this, [=,&dlg]() {
@@ -734,21 +780,7 @@ void MainWindow::onGroupsClicked() {
         dlg.accept();
     });
 
-    connect(historyBtnLocal, &QPushButton::clicked, this, [=]() {
-        QListWidgetItem *cur = list->currentItem(); if (!cur) return; QString g = cur->data(Qt::UserRole).toString();
-        // request group history
-        Message m{}; m.type = MSG_GROUP_HISTORY_REQUEST; strncpy(m.username, g.toStdString().c_str(), sizeof(m.username)-1); sendMessage(m);
-        Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_GROUP_HISTORY_RESPONSE) {
-            QString text = QString::fromUtf8(r.content);
-            QStringList lines = text.split('\n', Qt::KeepEmptyParts);
-            QString key = QString("Group:%1").arg(g);
-            conversations[key] = lines;
-            if (convoList->currentItem() && convoList->currentItem()->text() == key) {
-                logView->setPlainText(conversations[key].join("\n"));
-                logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
-            }
-        } else logView->appendPlainText("No group history response");
-    });
+    
 
     connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::reject);
     dlg.exec();
@@ -757,11 +789,11 @@ void MainWindow::onGroupsClicked() {
 
 void MainWindow::onUsersClicked() {
     // Request server for all users with friendship status relative to current user
-    if (sockfd < 0) { logView->appendPlainText("Not connected"); return; }
+    if (sockfd < 0) { appendLog("Not connected"); return; }
     Message req{}; req.type = MSG_ALL_USERS_STATUS_REQUEST; strncpy(req.username, currentUser.toStdString().c_str(), sizeof(req.username)-1); sendMessage(req);
     Message resp{};
     if (!(recvMessageBlocking(resp, 3000) && resp.type == MSG_ALL_USERS_STATUS_RESPONSE)) {
-        logView->appendPlainText("No users/status response");
+        appendLog("No users/status response");
         return;
     }
 
@@ -826,7 +858,7 @@ void MainWindow::onUsersClicked() {
         cur->setText(QString("%1 (outgoing)").arg(name));
         cur->setData(Qt::UserRole + 1, QString("outgoing"));
         addBtn->setEnabled(false);
-        logView->appendPlainText("Friend request sent to " + name);
+        appendLog("Friend request sent to " + name);
     });
 
     connect(openChatBtn, &QPushButton::clicked, this, [=,&dlg]() {
@@ -847,7 +879,7 @@ void MainWindow::onHistoryClicked() {
     if (sockfd < 0 || !convoList->currentItem()) return;
     QString peer = convoList->currentItem()->text();
     if (peer == "All" || peer.isEmpty()) {
-        logView->appendPlainText("Select a user to load history");
+        appendLog("Select a user to load history");
         return;
     }
     if (peer.startsWith("Group:", Qt::CaseInsensitive)) {
@@ -863,7 +895,7 @@ void MainWindow::onHistoryClicked() {
                 logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
             }
         } else {
-            logView->appendPlainText("No group history response");
+            appendLog("No group history response");
         }
     } else {
         Message msg{}; msg.type = MSG_HISTORY_REQUEST;
@@ -880,7 +912,7 @@ void MainWindow::onHistoryClicked() {
                 logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
             }
         } else {
-            logView->appendPlainText("No history response");
+            appendLog("No history response");
         }
     }
 }
@@ -915,7 +947,7 @@ void MainWindow::pollMessages() {
         Message peek{};
         ssize_t got = ::recv(sockfd, &peek, sizeof(Message), MSG_PEEK | MSG_DONTWAIT);
         if (got == 0) {
-            logView->appendPlainText("Disconnected by server");
+            appendLog("Disconnected by server");
             cleanupSocket();
             break;
         }
@@ -924,7 +956,7 @@ void MainWindow::pollMessages() {
                 break; // no more data now
             }
             // other socket error
-            logView->appendPlainText("Socket error while polling; will reconnect");
+            appendLog("Socket error while polling; will reconnect");
             cleanupSocket();
             break;
         }
@@ -958,11 +990,11 @@ void MainWindow::pollMessages() {
                     if (cur == "All") logView->setPlainText(conversations["All"].join("\n"));
                     else logView->setPlainText(conversations[from].join("\n"));
                 } else {
-                    logView->appendPlainText(line);
+                    appendLog(line);
                 }
                 logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
             } else {
-                logView->appendPlainText(line);
+                appendLog(line);
             }
         } else if (msg.type == MSG_GROUP_TEXT) {
             // msg.username == groupname; msg.content == "sender: body"
@@ -984,11 +1016,11 @@ void MainWindow::pollMessages() {
                     if (cur == "All") logView->setPlainText(conversations["All"].join("\n"));
                     else logView->setPlainText(conversations[key].join("\n"));
                 } else {
-                    logView->appendPlainText(line);
+                    appendLog(line);
                 }
                 logView->verticalScrollBar()->setValue(logView->verticalScrollBar()->maximum());
             } else {
-                logView->appendPlainText(line);
+                appendLog(line);
             }
         }
     }

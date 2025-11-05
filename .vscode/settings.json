@@ -57,7 +57,9 @@
         "typeinfo": "cpp",
         "variant": "cpp",
         "qplaintextedit": "cpp",
-        "qvboxlayout": "cpp"
+        "qvboxlayout": "cpp",
+        "iomanip": "cpp",
+        "sstream": "cpp"
     },
     "cmake.sourceDirectory": "/home/bodoi/code/MessengerApp/qt-client"
 }

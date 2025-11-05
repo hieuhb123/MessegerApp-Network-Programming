@@ -1,0 +1,21 @@
+[2025-11-05 16:04:35] Server started on port 8080
+[2025-11-05 16:04:35] Waiting for connections...
+[2025-11-05 16:04:41] New connection from 127.0.0.1:43762
+[2025-11-05 16:04:48] User 'hieu joined (total=1)
+[2025-11-05 16:04:48] Friend list requested: hieu
+[2025-11-05 16:04:48] Group list requested: hieu
+[2025-11-05 16:04:51] User 'hieu left (total=0)
+[2025-11-05 16:12:21] Server started on port 8080
+[2025-11-05 16:12:21] Waiting for connections...
+[2025-11-05 16:12:25] New connection from 127.0.0.1:33456
+[2025-11-05 16:12:29] User 'hieu joined (total=1)
+[2025-11-05 16:12:29] Friend list requested: hieu
+[2025-11-05 16:12:29] Group list requested: hieu
+[2025-11-05 16:12:31] Group history requested: hieu -> g1 test
+[2025-11-05 16:13:20] User 'hieu left (total=0)
+[2025-11-05 16:13:26] New connection from 127.0.0.1:48228
+[2025-11-05 16:13:30] User 'hieu joined (total=1)
+[2025-11-05 16:13:30] Friend list requested: hieu
+[2025-11-05 16:13:30] Group list requested: hieu
+[2025-11-05 16:13:35] Group history requested: hieu -> g1 test
+[2025-11-05 16:14:22] User 'hieu left (total=0)

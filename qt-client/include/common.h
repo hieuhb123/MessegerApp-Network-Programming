@@ -5,7 +5,7 @@
 
 // Network configuration
 // #define SERVER_IP "140.245.98.236"
-// #define PORT 4424
+// #define PORT 8814
 #define SERVER_IP "127.0.0.1"
 #define PORT 8080
 #define MAX_CLIENTS 10
@@ -60,6 +60,9 @@
 #define MSG_GROUP_HISTORY_RESPONSE 48
 #define MSG_GROUP_LIST_REQUEST 49
 #define MSG_GROUP_LIST_RESPONSE 50
+// Group members listing
+#define MSG_GROUP_MEMBERS_REQUEST 51
+#define MSG_GROUP_MEMBERS_RESPONSE 52
 
 // Color codes for terminal output
 #define COLOR_RESET   "\033[0m"

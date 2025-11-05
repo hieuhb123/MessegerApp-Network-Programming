@@ -10,6 +10,10 @@
 #include <arpa/inet.h>
 #include "common.h"
 #include <sqlite3.h>
+#include <fstream>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
 
 using namespace std;
 
@@ -28,6 +32,9 @@ private:
     const string user_db_path = "users.sqlite"; // SQLite database file
     mutex users_mutex;
     sqlite3* db = nullptr;
+    // logging
+    ofstream logFile;
+    mutex log_mutex;
 
 public:
     MessengerServer() : server_socket(-1), running(false) {}
@@ -112,6 +119,22 @@ public:
             return false;
         }
         return true;
+    }
+
+    void logActivity(const string &msg) {
+        // thread-safe append with timestamp
+        lock_guard<mutex> lock(log_mutex);
+        if (!logFile.is_open()) return;
+        // timestamp
+        using namespace chrono;
+        auto now = system_clock::now();
+        time_t t = system_clock::to_time_t(now);
+        struct tm tm;
+        localtime_r(&t, &tm);
+        char buf[64];
+        strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
+        logFile << "[" << buf << "] " << msg << endl;
+        logFile.flush();
     }
 
     // Trim leading/trailing whitespace
@@ -656,9 +679,18 @@ public:
             return false;
         }
 
+        // open activity log
+        logFile.open("server_activity.log", ios::app);
+        if (logFile.is_open()) {
+            logActivity(string("Server started on port ") + to_string(PORT));
+        } else {
+            cerr << COLOR_YELLOW << "Warning: could not open server_activity.log for writing" << COLOR_RESET << endl;
+        }
+
         running = true;
         cout << COLOR_GREEN << "✓ Server started on port " << PORT << COLOR_RESET << endl;
         cout << COLOR_CYAN << "Waiting for connections..." << COLOR_RESET << endl;
+        logActivity("Waiting for connections...");
         return true;
     }
 
@@ -671,6 +703,7 @@ public:
             if (client_socket < 0) {
                 if (running) {
                     cerr << COLOR_RED << "Failed to accept connection" << COLOR_RESET << endl;
+                    logActivity("Failed to accept connection");
                 }
                 continue;
             }
@@ -685,9 +718,11 @@ public:
                 }
             }
 
-            cout << COLOR_CYAN << "New connection from " 
-                 << inet_ntoa(client_addr.sin_addr) << ":" 
-                 << ntohs(client_addr.sin_port) << COLOR_RESET << endl;
+            {
+                string peer = string(inet_ntoa(client_addr.sin_addr)) + ":" + to_string(ntohs(client_addr.sin_port));
+                cout << COLOR_CYAN << "New connection from " << peer << COLOR_RESET << endl;
+                logActivity(string("New connection from ") + peer);
+            }
 
             // Start thread to handle client
             thread(&MessengerServer::handleClient, this, client_socket, client_addr).detach();
@@ -780,6 +815,7 @@ public:
         cout << COLOR_GREEN << "\u2713 User '" << client_info.username 
              << "' joined the chat (Total users: " << clients.size() << ")" 
              << COLOR_RESET << endl;
+    logActivity(string("User '") + client_info.username + " joined (total=" + to_string(clients.size()) + ")");
 
     // (broadcasting disabled)
 
@@ -791,22 +827,13 @@ public:
                 // Client disconnected
                 break;
             }
-
-          // (debug output removed)
-
-            if (msg.type == MSG_TEXT) {
-                string message = string(msg.content);
-                cout << COLOR_BLUE << "[" << client_info.username << "]: " 
-                     << COLOR_RESET << message << endl;
-                
-                // broadcasting of MSG_TEXT is disabled
-            }
-            else if (msg.type == MSG_FRIEND_REQUEST) {
+            if (msg.type == MSG_FRIEND_REQUEST) {
                 string to = string(msg.content);
                 bool ok = sendFriendRequest(client_info.username, to);
                 Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Friend request: ") + client_info.username + " -> " + to + (ok?" [ok]":" [fail]"));
             }
             else if (msg.type == MSG_FRIEND_ACCEPT) {
                 string from = string(msg.content); // the user who requested
@@ -821,6 +848,7 @@ public:
                 Message resp{}; resp.type = MSG_GROUP_CREATE_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Group create: ") + client_info.username + " -> " + gname + (ok?" [ok]":" [fail]"));
             }
             else if (msg.type == MSG_GROUP_ADD) {
                 // Expect: msg.username = groupname, msg.content = username-to-add
@@ -832,6 +860,7 @@ public:
                 Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Group add: ") + client_info.username + " add " + who + " to " + gname + (ok?" [ok]":" [fail]"));
             }
             else if (msg.type == MSG_GROUP_REMOVE) {
                 // Expect: msg.username = groupname, msg.content = username-to-remove
@@ -843,6 +872,7 @@ public:
                 Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Group remove: ") + client_info.username + " remove " + who + " from " + gname + (ok?" [ok]":" [fail]"));
             }
             else if (msg.type == MSG_GROUP_LEAVE) {
                 // Expect: msg.content = groupname
@@ -851,6 +881,7 @@ public:
                 Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Group leave: ") + client_info.username + " left " + gname + (ok?" [ok]":" [fail]"));
             }
             else if (msg.type == MSG_GROUP_MESSAGE) {
                 // msg.username = groupname, msg.content = body
@@ -875,6 +906,7 @@ public:
                                 send(c.socket, &gm, sizeof(Message), 0);
                             }
                         }
+                            logActivity(string("Group message: ") + client_info.username + " -> " + gname + " (len=" + to_string(body.size()) + ")");
                     }
                 }
             }
@@ -889,6 +921,25 @@ public:
                 Message resp{}; resp.type = MSG_GROUP_HISTORY_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 strncpy(resp.content, listing.c_str(), sizeof(resp.content)-1);
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Group history requested: ") + client_info.username + " -> " + gname);
+            }
+            else if (msg.type == MSG_GROUP_MEMBERS_REQUEST) {
+                string gname = trimStr(string(msg.username));
+                string listing;
+                if (!gname.empty() && isMemberOfGroup(gname, client_info.username)) {
+                    auto members = listGroupMembers(gname);
+                    for (size_t i = 0; i < members.size(); ++i) {
+                        listing += members[i];
+                        if (i + 1 < members.size()) listing += ", ";
+                    }
+                    if (listing.empty()) listing = string("(no members)");
+                } else {
+                    listing = string("Access denied or invalid group");
+                }
+                Message resp{}; resp.type = MSG_GROUP_MEMBERS_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
+                strncpy(resp.content, listing.c_str(), sizeof(resp.content)-1);
+                send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Group members requested: ") + client_info.username + " -> " + gname);
             }
             else if (msg.type == MSG_GROUP_LIST_REQUEST) {
                 auto groups = listGroupsForUser(client_info.username);
@@ -897,6 +948,7 @@ public:
                 for (size_t i = 0; i < groups.size(); ++i) { combined += groups[i]; if (i+1<groups.size()) combined += ", "; }
                 strncpy(resp.content, combined.c_str(), sizeof(resp.content)-1);
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Group list requested: ") + client_info.username);
             }
             else if (msg.type == MSG_FRIEND_REFUSE) {
                 string from = string(msg.content); // the user who requested
@@ -904,6 +956,7 @@ public:
                 Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Friend refuse: ") + client_info.username + " <- " + from + (ok?" [ok]":" [fail]"));
             }
             else if (msg.type == MSG_FRIEND_LIST_REQUEST) {
                 auto friends = listFriends(client_info.username);
@@ -912,6 +965,7 @@ public:
                 for (size_t i=0;i<friends.size();++i) { combined += friends[i]; if (i+1<friends.size()) combined += ", "; }
                 strncpy(resp.content, combined.c_str(), sizeof(resp.content)-1);
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Friend list requested: ") + client_info.username);
             }
             else if (msg.type == MSG_FRIEND_REMOVE) {
                 string target = string(msg.content);
@@ -919,6 +973,7 @@ public:
                 Message resp{}; resp.type = MSG_AUTH_RESPONSE; strncpy(resp.username, "Server", sizeof(resp.username)-1);
                 resp.content[0] = ok ? AUTH_SUCCESS : AUTH_FAILURE;
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("Friend remove: ") + client_info.username + " -/-> " + target + (ok?" [ok]":" [fail]"));
             }
             else if (msg.type == MSG_ALL_USERS_STATUS_REQUEST) {
                 string listing = listAllUsersWithStatus(client_info.username);
@@ -928,6 +983,7 @@ public:
                 resp.content[0] = '\0';
                 strncpy(resp.content, listing.c_str(), sizeof(resp.content)-1);
                 send(client_socket, &resp, sizeof(Message), 0);
+                logActivity(string("All users/status requested: ") + client_info.username);
             }
             else if (msg.type == MSG_DIRECT_MESSAGE) {
                 // msg.username holds the receiver, msg.content holds the body; sender is client_info.username
@@ -950,6 +1006,7 @@ public:
                                 break;
                             }
                         }
+                            logActivity(string("Direct message: ") + client_info.username + " -> " + to + " (len=" + to_string(body.size()) + ")");
                     }
                 }
             }
@@ -986,6 +1043,7 @@ public:
         cout << COLOR_YELLOW << "✗ User '" << client_info.username 
              << "' left the chat (Total users: " << clients.size() << ")" 
              << COLOR_RESET << endl;
+    logActivity(string("User '") + client_info.username + " left (total=" + to_string(clients.size()) + ")");
 
     // (broadcasting disabled)
 

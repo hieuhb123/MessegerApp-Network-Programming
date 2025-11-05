@@ -1,0 +1,142 @@
+[2025-11-05 15:52:17] Connected to server (auto-connect)
+[2025-11-05 15:52:19] Connected to server (auto-connect)
+[2025-11-05 15:52:43] -> SENT type=11 bytes=4132
+[2025-11-05 15:52:43] <- RECV type=12 from=Server
+[2025-11-05 15:52:43] Login success
+[2025-11-05 15:52:43] -> SENT type=23 bytes=4132
+[2025-11-05 15:52:43] <- RECV type=24 from=Server
+[2025-11-05 15:52:43] Friends updated (3)
+[2025-11-05 15:52:43] -> SENT type=49 bytes=4132
+[2025-11-05 15:52:43] <- RECV type=50 from=Server
+[2025-11-05 15:52:43] Groups updated (1)
+[2025-11-05 15:52:50] -> SENT type=47 bytes=4132
+[2025-11-05 15:52:50] <- RECV type=48 from=Server
+[2025-11-05 15:52:50] -> SENT type=29 bytes=4132
+[2025-11-05 15:52:50] <- RECV type=30 from=Server
+[2025-11-05 15:52:51] -> SENT type=29 bytes=4132
+[2025-11-05 15:52:51] <- RECV type=30 from=Server
+[2025-11-05 15:52:51] -> SENT type=29 bytes=4132
+[2025-11-05 15:52:51] <- RECV type=30 from=Server
+[2025-11-05 15:52:55] -> SENT type=11 bytes=4132
+[2025-11-05 15:52:55] <- RECV type=12 from=Server
+[2025-11-05 15:52:55] Login success
+[2025-11-05 15:52:55] -> SENT type=23 bytes=4132
+[2025-11-05 15:52:55] <- RECV type=24 from=Server
+[2025-11-05 15:52:55] Friends updated (2)
+[2025-11-05 15:52:55] -> SENT type=49 bytes=4132
+[2025-11-05 15:52:55] <- RECV type=50 from=Server
+[2025-11-05 15:52:55] Groups updated (1)
+[2025-11-05 15:52:56] -> SENT type=29 bytes=4132
+[2025-11-05 15:52:56] <- RECV type=30 from=Server
+[2025-11-05 15:52:56] -> SENT type=47 bytes=4132
+[2025-11-05 15:52:56] <- RECV type=48 from=Server
+[2025-11-05 15:52:57] -> SENT type=29 bytes=4132
+[2025-11-05 15:52:57] <- RECV type=30 from=Server
+[2025-11-05 15:53:00] -> SENT type=28 bytes=4132
+[2025-11-05 15:53:02] -> SENT type=28 bytes=4132
+[2025-11-05 15:53:05] Disconnected (manual)
+[2025-11-05 15:53:05] Disconnected (manual). Chat messages will be queued and sent when reconnected.
+[2025-11-05 15:53:08] Message queued for later delivery (offline)
+[2025-11-05 15:53:09] Connected to server (auto-connect)
+[2025-11-05 15:53:09] -> SENT type=11 bytes=4132
+[2025-11-05 15:53:09] <- RECV type=12 from=Server
+[2025-11-05 15:53:09] Auto-login success
+[2025-11-05 15:53:09] Flushed 1 queued message(s)
+[2025-11-05 15:53:13] -> SENT type=28 bytes=4132
+[2025-11-05 15:53:16] -> SENT type=28 bytes=4132
+[2025-11-05 15:53:19] -> SENT type=47 bytes=4132
+[2025-11-05 15:53:19] <- RECV type=48 from=Server
+[2025-11-05 15:53:20] -> SENT type=47 bytes=4132
+[2025-11-05 15:53:20] <- RECV type=48 from=Server
+[2025-11-05 15:53:22] -> SENT type=49 bytes=4132
+[2025-11-05 15:53:22] <- RECV type=50 from=Server
+[2025-11-05 15:57:03] Connected to server (auto-connect)
+[2025-11-05 15:57:07] -> SENT type=11 bytes=4132
+[2025-11-05 15:57:07] <- RECV type=12 from=Server
+[2025-11-05 15:57:07] Login success
+[2025-11-05 15:57:07] -> SENT type=23 bytes=4132
+[2025-11-05 15:57:07] <- RECV type=24 from=Server
+[2025-11-05 15:57:07] Friends updated (3)
+[2025-11-05 15:57:07] -> SENT type=49 bytes=4132
+[2025-11-05 15:57:07] <- RECV type=50 from=Server
+[2025-11-05 15:57:07] Groups updated (1)
+[2025-11-05 15:57:09] -> SENT type=29 bytes=4132
+[2025-11-05 15:57:09] <- RECV type=30 from=Server
+[2025-11-05 15:57:11] -> SENT type=49 bytes=4132
+[2025-11-05 15:57:11] <- RECV type=50 from=Server
+[2025-11-05 15:57:16] -> SENT type=51 bytes=4132
+[2025-11-05 15:57:16] <- RECV type=52 from=Server
+[2025-11-05 15:57:24] -> SENT type=47 bytes=4132
+[2025-11-05 15:57:24] <- RECV type=48 from=Server
+[2025-11-05 15:57:27] -> SENT type=47 bytes=4132
+[2025-11-05 15:57:27] <- RECV type=48 from=Server
+[2025-11-05 15:57:27] -> SENT type=47 bytes=4132
+[2025-11-05 15:57:27] <- RECV type=48 from=Server
+[2025-11-05 16:00:05] Connected to server (auto-connect)
+[2025-11-05 16:00:09] -> SENT type=11 bytes=4132
+[2025-11-05 16:00:09] <- RECV type=12 from=Server
+[2025-11-05 16:00:09] Login success
+[2025-11-05 16:00:09] -> SENT type=23 bytes=4132
+[2025-11-05 16:00:09] <- RECV type=24 from=Server
+[2025-11-05 16:00:09] Friends updated (3)
+[2025-11-05 16:00:09] -> SENT type=49 bytes=4132
+[2025-11-05 16:00:09] <- RECV type=50 from=Server
+[2025-11-05 16:00:09] Groups updated (1)
+[2025-11-05 16:00:11] -> SENT type=47 bytes=4132
+[2025-11-05 16:00:11] <- RECV type=48 from=Server
+[2025-11-05 16:00:11] -> SENT type=29 bytes=4132
+[2025-11-05 16:00:11] <- RECV type=30 from=Server
+[2025-11-05 16:00:12] -> SENT type=29 bytes=4132
+[2025-11-05 16:00:12] <- RECV type=30 from=Server
+[2025-11-05 16:00:13] -> SENT type=49 bytes=4132
+[2025-11-05 16:00:13] <- RECV type=50 from=Server
+[2025-11-05 16:00:16] -> SENT type=47 bytes=4132
+[2025-11-05 16:00:16] <- RECV type=48 from=Server
+[2025-11-05 16:04:41] Connected to server (auto-connect)
+[2025-11-05 16:04:48] -> SENT type=11 bytes=4132
+[2025-11-05 16:04:48] <- RECV type=12 from=Server
+[2025-11-05 16:04:48] Login success
+[2025-11-05 16:04:48] -> SENT type=23 bytes=4132
+[2025-11-05 16:04:48] <- RECV type=24 from=Server
+[2025-11-05 16:04:48] Friends updated (3)
+[2025-11-05 16:04:48] -> SENT type=49 bytes=4132
+[2025-11-05 16:04:48] <- RECV type=50 from=Server
+[2025-11-05 16:04:48] Groups updated (1)
+[2025-11-05 16:12:25] Connected to server (auto-connect)
+[2025-11-05 16:12:29] -> SENT type=11 bytes=4132
+[2025-11-05 16:12:29] <- RECV type=12 from=Server
+[2025-11-05 16:12:29] Login success
+[2025-11-05 16:12:29] -> SENT type=23 bytes=4132
+[2025-11-05 16:12:29] <- RECV type=24 from=Server
+[2025-11-05 16:12:29] Friends updated (3)
+[2025-11-05 16:12:29] -> SENT type=49 bytes=4132
+[2025-11-05 16:12:29] <- RECV type=50 from=Server
+[2025-11-05 16:12:29] Groups updated (1)
+[2025-11-05 16:12:31] -> SENT type=47 bytes=4132
+[2025-11-05 16:12:31] <- RECV type=48 from=Server
+[2025-11-05 16:12:31] -> SENT type=29 bytes=4132
+[2025-11-05 16:12:31] <- RECV type=30 from=Server
+[2025-11-05 16:12:32] -> SENT type=29 bytes=4132
+[2025-11-05 16:12:32] <- RECV type=30 from=Server
+[2025-11-05 16:13:26] Connected to server (auto-connect)
+[2025-11-05 16:13:30] -> SENT type=11 bytes=4132
+[2025-11-05 16:13:30] <- RECV type=12 from=Server
+[2025-11-05 16:13:30] Login success
+[2025-11-05 16:13:30] -> SENT type=23 bytes=4132
+[2025-11-05 16:13:30] <- RECV type=24 from=Server
+[2025-11-05 16:13:30] Friends updated (3)
+[2025-11-05 16:13:30] -> SENT type=49 bytes=4132
+[2025-11-05 16:13:30] <- RECV type=50 from=Server
+[2025-11-05 16:13:30] Groups updated (1)
+[2025-11-05 16:13:32] -> SENT type=29 bytes=4132
+[2025-11-05 16:13:32] <- RECV type=30 from=Server
+[2025-11-05 16:13:32] -> SENT type=29 bytes=4132
+[2025-11-05 16:13:33] <- RECV type=30 from=Server
+[2025-11-05 16:13:33] -> SENT type=29 bytes=4132
+[2025-11-05 16:13:33] <- RECV type=30 from=Server
+[2025-11-05 16:13:34] -> SENT type=29 bytes=4132
+[2025-11-05 16:13:34] <- RECV type=30 from=Server
+[2025-11-05 16:13:35] -> SENT type=47 bytes=4132
+[2025-11-05 16:13:35] <- RECV type=48 from=Server
+[2025-11-05 16:13:35] -> SENT type=29 bytes=4132
+[2025-11-05 16:13:35] <- RECV type=30 from=Server
