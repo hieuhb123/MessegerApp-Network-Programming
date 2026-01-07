@@ -1,9 +1,9 @@
 # Ignore build artifacts
 bin/
 obj/
+build/
 *.o
 *.out
-
 # Ignore IDE files
 .vscode/settings.json
 .idea/
@@ -11,6 +11,3 @@ obj/
 *.swo
 *~
 
-# Ignore OS files
-.DS_Store
-Thumbs.db

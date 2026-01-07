@@ -815,9 +815,7 @@ public:
         cout << COLOR_GREEN << "\u2713 User '" << client_info.username 
              << "' joined the chat (Total users: " << clients.size() << ")" 
              << COLOR_RESET << endl;
-    logActivity(string("User '") + client_info.username + " joined (total=" + to_string(clients.size()) + ")");
-
-    // (broadcasting disabled)
+        logActivity(string("User '") + client_info.username + " joined (total=" + to_string(clients.size()) + ")");
 
         // Handle messages from client
         while (running) {
@@ -1043,14 +1041,10 @@ public:
         cout << COLOR_YELLOW << "✗ User '" << client_info.username 
              << "' left the chat (Total users: " << clients.size() << ")" 
              << COLOR_RESET << endl;
-    logActivity(string("User '") + client_info.username + " left (total=" + to_string(clients.size()) + ")");
-
-    // (broadcasting disabled)
+        logActivity(string("User '") + client_info.username + " left (total=" + to_string(clients.size()) + ")");
 
         close(client_socket);
     }
-
-    // broadcasting has been removed
 
     void sendUserList(int client_socket) {
         lock_guard<mutex> lock(clients_mutex);

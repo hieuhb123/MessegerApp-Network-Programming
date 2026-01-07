@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/messenger_qt_autogen"
   "messenger_qt_autogen/mocs_compilation.cpp"
+  "messenger_qt_autogen/timestamp"
 )
 
 # Per-language clean rules from dependency scanning.

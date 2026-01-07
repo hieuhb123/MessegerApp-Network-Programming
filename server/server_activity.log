@@ -19,3 +19,14 @@
 [2025-11-05 16:13:30] Group list requested: hieu
 [2025-11-05 16:13:35] Group history requested: hieu -> g1 test
 [2025-11-05 16:14:22] User 'hieu left (total=0)
+[2025-11-20 17:25:49] Server started on port 8080
+[2025-11-20 17:25:49] Waiting for connections...
+[2025-11-20 17:25:49] New connection from 127.0.0.1:33866
+[2025-11-20 17:25:58] User 'hieu joined (total=1)
+[2025-11-20 17:25:58] Friend list requested: hieu
+[2025-11-20 17:25:58] Group list requested: hieu
+[2025-11-20 17:25:59] Group history requested: hieu -> g1 test
+[2025-11-20 17:26:02] User 'hieu left (total=0)
+[2026-01-07 13:05:54] Server started on port 8080
+[2026-01-07 13:05:54] Waiting for connections...
+[2026-01-07 13:06:33] New connection from 127.0.0.1:53100

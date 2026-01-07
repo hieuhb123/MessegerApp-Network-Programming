@@ -10,6 +10,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/messenger_qt.dir/messenger_qt_autogen/mocs_compilation.cpp.o.d"
   "messenger_qt"
   "messenger_qt.pdb"
+  "messenger_qt_autogen/mocs_compilation.cpp"
+  "messenger_qt_autogen/timestamp"
 )
 
 # Per-language clean rules from dependency scanning.

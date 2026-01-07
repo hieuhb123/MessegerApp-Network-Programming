@@ -1,4 +1,5 @@
-/home/bodoi/code/MessengerApp/qt-client/build/CMakeFiles/messenger_qt.dir
-/home/bodoi/code/MessengerApp/qt-client/build/CMakeFiles/edit_cache.dir
-/home/bodoi/code/MessengerApp/qt-client/build/CMakeFiles/rebuild_cache.dir
-/home/bodoi/code/MessengerApp/qt-client/build/CMakeFiles/messenger_qt_autogen.dir
+/home/bodoi/code/mess_app/qt-client/build/CMakeFiles/messenger_qt.dir
+/home/bodoi/code/mess_app/qt-client/build/CMakeFiles/edit_cache.dir
+/home/bodoi/code/mess_app/qt-client/build/CMakeFiles/rebuild_cache.dir
+/home/bodoi/code/mess_app/qt-client/build/CMakeFiles/messenger_qt_autogen_timestamp_deps.dir
+/home/bodoi/code/mess_app/qt-client/build/CMakeFiles/messenger_qt_autogen.dir

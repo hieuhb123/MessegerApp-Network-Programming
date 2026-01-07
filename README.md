@@ -1,298 +1,254 @@
-# C++ Messenger Application
+# Messenger App - Network Programming
 
-A simple terminal-based messenger application built with C++ using socket programming. This application features a multi-threaded server that can handle multiple clients simultaneously, with real-time message broadcasting.
+A real-time messaging application built with C++ featuring a Qt-based client and a multi-threaded server with SQLite database support.
 
 ## Features
 
-- **Multi-client support**: Server can handle up to 10 concurrent clients
-- **Real-time messaging**: Messages are instantly broadcast to all connected clients
-- **User identification**: Each client has a unique username
-- **Colorful terminal output**: Enhanced readability with ANSI color codes
-- **Thread-safe operations**: Mutex-protected client list and operations
-- **User notifications**: Join/leave notifications for all clients
-- **Commands**: Built-in commands like `/quit` and `/users`
+- User registration and authentication
+- Friend management system
+- Direct messaging between users
+- Group chat functionality
+- Message history storage
+- Multi-threaded server architecture
+- Qt5 graphical user interface
 
 ## Project Structure
 
 ```
-MessengerApp/
-├── src/
-│   ├── server.cpp          # Server implementation
-│   └── client.cpp          # Client implementation
-├── include/
-│   └── common.h            # Shared constants and structures
-├── bin/                    # Compiled binaries (generated)
-├── obj/                    # Object files (generated)
-├── Makefile               # Build configuration
+mess_app/
+├── server/                 # Server-side application
+│   ├── src/
+│   │   └── server.cpp     # Main server implementation
+│   ├── include/
+│   │   └── common.h       # Shared protocol definitions
+│   └── Makefile           # Server build configuration
+│
+├── qt-client/             # Qt-based client application
+│   ├── main.cpp           # Application entry point
+│   ├── mainwindow.cpp     # Main window implementation
+│   ├── mainwindow.h       # Main window header
+│   ├── include/
+│   │   └── common.h       # Shared protocol definitions
+│   └── CMakeLists.txt     # CMake build configuration
+│
 └── README.md              # This file
 ```
 
-## Requirements
-The project requires a C++17-capable compiler and a few development libraries depending on which parts you want to build (console server/client and optional Qt GUI client).
+## Prerequisites
 
-Minimum requirements
+### For Server
+- GCC/G++ compiler with C++17 support
+- Make
+- SQLite3 development libraries
+- pthread library
 
-- C++ compiler with C++17 support (g++ or clang++)
-- CMake (for the Qt client)
-- make and build-essential (gcc, g++, make)
-- POSIX-compatible OS (Linux, macOS)
-- pthreads (usually provided by the standard C/C++ toolchain)
-- SQLite development library (headers + runtime)
+### For Qt Client
+- CMake (version 3.14 or higher)
+- Qt5 development libraries (Widgets and Network modules)
+- GCC/G++ compiler with C++17 support
 
-Recommended packages (install examples)
+## Installation
 
-Debian / Ubuntu (recommended - tested on Ubuntu 20.04 / 22.04):
+### Ubuntu/Debian
 
 ```bash
+# Install server dependencies
 sudo apt update
-# Core build tools + SQLite dev headers
-sudo apt install -y build-essential cmake git libsqlite3-dev
+sudo apt install build-essential g++ make libsqlite3-dev
 
-# Optional: Qt GUI client dependencies (Qt5)
-sudo apt install -y qtbase5-dev libqt5network5 libqt5network5-dev qtchooser qt5-qmake qtbase5-dev-tools
-
-# If you prefer Qt6, install the Qt6 dev packages instead and update `qt-client/CMakeLists.txt`.
+# Install Qt client dependencies
+sudo apt install cmake qtbase5-dev qt5-qmake
 ```
 
-Quick Ubuntu build & run (console apps)
-
-```bash
-# from project root
-make            # builds server and console client
-# run server
-./bin/server
-# in another terminal, run client
-./bin/client
-```
-
-Quick Ubuntu build & run (Qt GUI client)
-
-```bash
-cd qt-client
-mkdir -p build && cd build
-cmake ..
-make -j$(nproc)
-# run the Qt client binary
-./messenger_qt
-```
-
-Notes
-
-- The console server and client require only a C++ compiler, make, and `libsqlite3-dev` to build and run.
-- The Qt GUI client (in `qt-client/`) requires Qt development packages and CMake. If you don't need the GUI, you can ignore the Qt packages and build only the console binaries with `make`.
-- If you see errors about missing `sqlite3.h`, install the `libsqlite3-dev` (Debian/Ubuntu) or `sqlite-devel` (Fedora) package and re-run `make`.
-- For Qt6 instead of Qt5, adjust the Qt CMake `find_package` lines in `qt-client/CMakeLists.txt` accordingly.
 
 ## Building
 
-To build both server and client:
+### Build Server
 
 ```bash
+cd server
+make server
+```
+
+This will create the server executable at `server/bin/server`.
+
+### Build Qt Client
+
+```bash
+cd qt-client
+mkdir -p build
+cd build
+cmake ..
 make
 ```
 
-To build only the server:
+This will create the client executable at `qt-client/build/messenger_qt`.
+
+### Build Everything
+
+From the project root:
 
 ```bash
-make run-server
+# Build server
+cd server && make server && cd ..
+
+# Build client
+cd qt-client && mkdir -p build && cd build && cmake .. && make && cd ../..
 ```
 
-To build only the client:
+## Running
+
+### 1. Start the Server
 
 ```bash
-make run-client
-```
-
-To clean build artifacts:
-
-```bash
-make clean
-```
-
-## Running the Application
-
-### Step 1: Start the Server
-
-In one terminal, run:
-
-```bash
-make run-server
-```
-
-Or directly:
-
-```bash
+cd server
 ./bin/server
 ```
 
-The server will start listening on port 8080 and display:
-```
-========================================
-    C++ Messenger Server
-========================================
-✓ Server started on port 8080
-Waiting for connections...
-```
+The server will:
+- Create a SQLite database file (`users.sqlite`) if it doesn't exist
+- Start listening on port 8080 (default)
+- Display connection and activity logs
 
-### Step 2: Start Client(s)
+**Server Commands:**
+- The server runs continuously and logs all activities
+- Press `Ctrl+C` to stop the server
 
-In another terminal (or multiple terminals for multiple clients), run:
+### 2. Start the Client(s)
 
-```bash
-make run-client
-```
-
-Or directly:
+In a new terminal:
 
 ```bash
-./bin/client
+cd qt-client/build
+./messenger_qt
 ```
 
-You'll be prompted to:
-1. Enter server IP (press Enter for localhost/127.0.0.1)
-2. Enter your username (1-31 characters)
+You can start multiple client instances to test messaging between users.
 
-Example:
-```
-========================================
-    C++ Messenger Client
-========================================
+**Client Features:**
+- Register new accounts
+- Login with existing credentials
+- Add/remove friends
+- Send direct messages
+- Create and join group chats
+- View message history
 
-Enter server IP (or press Enter for localhost): 
-Enter your username: Alice
+## Configuration
 
-✓ Connected to server at 127.0.0.1:8080
-✓ Joined chat as 'Alice'
-Type your messages and press Enter to send
+### Server Configuration
 
-Commands:
-  /quit - Exit the chat
-  /users - List online users
+Edit `server/src/server.cpp` to modify:
+- **Port**: Change `PORT` constant (default: 8080)
+- **Database path**: Modify `user_db_path` variable (default: "users.sqlite")
 
-You: 
-```
+### Client Configuration
 
-### Step 3: Start Chatting!
+The client connects to `localhost:8080` by default. To connect to a remote server, modify the connection settings in the client code.
 
-Type your messages and press Enter to send. All connected clients will receive your messages in real-time.
+## Database Schema
 
-## Available Commands
+The server uses SQLite with the following tables:
 
-While in the chat, you can use these commands:
+- **users**: Stores user credentials (username, password)
+- **friends**: Manages friend relationships and requests
+- **messages**: Stores direct message history
+- **groups**: Group chat information
+- **group_members**: Group membership data
 
-- `/quit` or `/exit` - Disconnect from the server and exit
-- `/users` - Request list of online users (if implemented on server)
+## Development
 
-## Example Usage
+### Clean Build
 
-### Terminal 1 (Server):
-```
-========================================
-    C++ Messenger Server
-========================================
-✓ Server started on port 8080
-Waiting for connections...
-New connection from 127.0.0.1:54321
-✓ User 'Alice' joined the chat (Total users: 1)
-New connection from 127.0.0.1:54322
-✓ User 'Bob' joined the chat (Total users: 2)
-[Alice]: Hello everyone!
-[Bob]: Hi Alice!
+```bash
+# Clean server
+cd server
+make clean
+
+# Clean client
+cd qt-client/build
+make clean
+# Or remove build directory entirely
+cd .. && rm -rf build
 ```
 
-### Terminal 2 (Client - Alice):
+### Debugging
+
+Enable debug output by compiling with debug flags:
+
+```bash
+# Server with debug symbols
+cd server
+make CXXFLAGS="-std=c++17 -Wall -Wextra -pthread -I./include -g" server
+
+# Client with debug symbols
+cd qt-client/build
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+make
 ```
-✓ Connected to server at 127.0.0.1:8080
-✓ Joined chat as 'Alice'
-Type your messages and press Enter to send
-
-[Server]: Bob joined the chat
-You: Hello everyone!
-[Bob]: Hi Alice!
-You: 
-```
-
-### Terminal 3 (Client - Bob):
-```
-✓ Connected to server at 127.0.0.1:8080
-✓ Joined chat as 'Bob'
-Type your messages and press Enter to send
-
-Connected users: Alice, Bob
-[Alice]: Hello everyone!
-You: Hi Alice!
-```
-
-## Technical Details
-
-### Network Protocol
-
-- **Transport**: TCP/IP sockets
-- **Port**: 8080 (configurable in `common.h`)
-- **Message Structure**: Fixed-size struct with type, username, and content fields
-- **Buffer Size**: 4096 bytes per message
-
-### Message Types
-
-1. `MSG_TEXT` - Regular text message
-2. `MSG_USERNAME` - Username registration
-3. `MSG_DISCONNECT` - Client disconnect notification
-4. `MSG_USER_LIST` - List of connected users
-
-### Threading Model
-
-- **Server**: Main thread accepts connections, spawns new thread for each client
-- **Client**: Main thread for sending, separate thread for receiving messages
-
-### Configuration
-
-All configuration constants are in `include/common.h`:
-
-- `PORT` - Server port (default: 8080)
-- `MAX_CLIENTS` - Maximum concurrent clients (default: 10)
-- `BUFFER_SIZE` - Message buffer size (default: 4096 bytes)
 
 ## Troubleshooting
 
-### "Address already in use" error
-If you see this error when starting the server, either:
-- Wait a few seconds for the port to be released
-- Use a different port (modify `PORT` in `common.h` and rebuild)
+### Port Already in Use
 
-### "Connection refused" error
-- Make sure the server is running before starting clients
-- Verify the server IP address is correct
-- Check if a firewall is blocking port 8080
+If the server fails to start with "Address already in use":
+```bash
+# Find and kill process using port 8080
+sudo lsof -i :8080
+kill -9 <PID>
+```
 
-### Client can't connect to remote server
-- Make sure both machines are on the same network
-- Use the server's actual IP address (not localhost)
-- Ensure firewall rules allow connections on port 8080
+### SQLite Errors
 
-## Limitations
+If you encounter database errors:
+```bash
+# Remove and recreate database
+cd server
+rm users.sqlite
+./bin/server  # Will recreate database
+```
 
-- No message encryption (plaintext communication)
-- No persistent message history
-- No private messaging between users
-- Maximum message size is 4096 bytes
-- No user authentication
+### Qt Client Fails to Build
 
-## Future Enhancements
+Ensure Qt5 is properly installed:
+```bash
+# Check Qt installation
+qmake --version
 
-Possible improvements:
-- [ ] Add SSL/TLS encryption
-- [ ] Implement private messaging
-- [ ] Add message history/logging
-- [ ] Create a GUI client
-- [ ] Add file transfer capability
-- [ ] Implement user authentication
-- [ ] Add message timestamps
-- [ ] Support for chat rooms/channels
+# If Qt5 is in a custom location, specify it:
+cmake -DCMAKE_PREFIX_PATH=/path/to/Qt/5.15.2/gcc_64 ..
+```
+
+### Connection Issues
+
+- Ensure the server is running before starting clients
+- Check firewall settings if connecting remotely
+- Verify the server IP and port in client configuration
+
+## Architecture
+
+### Server
+- Multi-threaded design with one thread per client connection
+- Mutex-protected shared resources for thread safety
+- SQLite database for persistent storage
+- Message broadcasting and routing system
+
+### Client
+- Event-driven Qt application
+- Asynchronous network communication using Qt Network
+- GUI built with Qt Widgets
+
+## Protocol
+
+The application uses a custom text-based protocol over TCP sockets. Messages are formatted as commands with parameters separated by spaces.
 
 ## License
 
-This is a demo project for educational purposes.
+This project is for educational purposes as part of Network Programming coursework.
 
-## Author
+## Contributors
 
-Created for learning C++ socket programming and multi-threaded applications.
+- Original repository: https://github.com/hieuhb123/MessegerApp-Network-Programming
+
+## Support
+
+For issues and questions, please refer to the original repository or contact the course instructor.
