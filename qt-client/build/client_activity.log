@@ -1,50 +1,85 @@
-[2025-11-20 17:24:42] Failed to connect to server — will retry
-[2025-11-20 17:24:42] Reconnecting in 2s...
-[2025-11-20 17:24:43] Failed to connect to server — will retry
-[2025-11-20 17:24:45] Failed to connect to server — will retry
-[2025-11-20 17:24:47] Failed to connect to server — will retry
-[2025-11-20 17:24:49] Failed to connect to server — will retry
-[2025-11-20 17:24:51] Failed to connect to server — will retry
-[2025-11-20 17:24:53] Failed to connect to server — will retry
-[2025-11-20 17:24:55] Failed to connect to server — will retry
-[2025-11-20 17:24:57] Failed to connect to server — will retry
-[2025-11-20 17:24:59] Failed to connect to server — will retry
-[2025-11-20 17:25:01] Failed to connect to server — will retry
-[2025-11-20 17:25:03] Failed to connect to server — will retry
-[2025-11-20 17:25:05] Failed to connect to server — will retry
-[2025-11-20 17:25:07] Failed to connect to server — will retry
-[2025-11-20 17:25:09] Failed to connect to server — will retry
-[2025-11-20 17:25:11] Failed to connect to server — will retry
-[2025-11-20 17:25:13] Failed to connect to server — will retry
-[2025-11-20 17:25:15] Failed to connect to server — will retry
-[2025-11-20 17:25:17] Failed to connect to server — will retry
-[2025-11-20 17:25:19] Failed to connect to server — will retry
-[2025-11-20 17:25:21] Failed to connect to server — will retry
-[2025-11-20 17:25:23] Failed to connect to server — will retry
-[2025-11-20 17:25:25] Failed to connect to server — will retry
-[2025-11-20 17:25:27] Failed to connect to server — will retry
-[2025-11-20 17:25:29] Failed to connect to server — will retry
-[2025-11-20 17:25:31] Failed to connect to server — will retry
-[2025-11-20 17:25:33] Failed to connect to server — will retry
-[2025-11-20 17:25:35] Failed to connect to server — will retry
-[2025-11-20 17:25:37] Failed to connect to server — will retry
-[2025-11-20 17:25:39] Failed to connect to server — will retry
-[2025-11-20 17:25:41] Failed to connect to server — will retry
-[2025-11-20 17:25:43] Failed to connect to server — will retry
-[2025-11-20 17:25:45] Failed to connect to server — will retry
-[2025-11-20 17:25:47] Failed to connect to server — will retry
-[2025-11-20 17:25:49] Connected to server (auto-connect)
-[2025-11-20 17:25:58] -> SENT type=11 bytes=4132
-[2025-11-20 17:25:58] <- RECV type=12 from=Server
-[2025-11-20 17:25:58] Login success
-[2025-11-20 17:25:58] -> SENT type=23 bytes=4132
-[2025-11-20 17:25:58] <- RECV type=24 from=Server
-[2025-11-20 17:25:58] Friends updated (3)
-[2025-11-20 17:25:58] -> SENT type=49 bytes=4132
-[2025-11-20 17:25:58] <- RECV type=50 from=Server
-[2025-11-20 17:25:58] Groups updated (1)
-[2025-11-20 17:25:59] -> SENT type=47 bytes=4132
-[2025-11-20 17:25:59] <- RECV type=48 from=Server
-[2025-11-20 17:25:59] -> SENT type=29 bytes=4132
-[2025-11-20 17:25:59] <- RECV type=30 from=Server
-[2026-01-07 13:06:33] Connected to server (auto-connect)
+[2026-01-08 06:41:32] Connected to server (auto-connect)
+[2026-01-08 06:44:43] Connected to server (auto-connect)
+[2026-01-08 06:44:50] -> SENT type=11 bytes=4132
+[2026-01-08 06:44:50] <- RECV type=12 from=Server
+[2026-01-08 06:44:50] Login success
+[2026-01-08 06:44:50] -> SENT type=23 bytes=4132
+[2026-01-08 06:44:50] <- RECV type=24 from=Server
+[2026-01-08 06:44:50] Friends updated (4)
+[2026-01-08 06:44:50] -> SENT type=49 bytes=4132
+[2026-01-08 06:44:50] <- RECV type=50 from=Server
+[2026-01-08 06:44:50] Groups updated (2)
+[2026-01-08 06:44:52] -> SENT type=23 bytes=4132
+[2026-01-08 06:44:52] <- RECV type=24 from=Server
+[2026-01-08 07:08:50] Connected to server (auto-connect)
+[2026-01-08 07:08:55] -> SENT type=11 bytes=4132
+[2026-01-08 07:08:55] <- RECV type=12 from=Server
+[2026-01-08 07:08:55] Login success
+[2026-01-08 07:08:55] -> SENT type=23 bytes=4132
+[2026-01-08 07:08:55] <- RECV type=24 from=Server
+[2026-01-08 07:08:55] Friends updated (4)
+[2026-01-08 07:08:55] -> SENT type=49 bytes=4132
+[2026-01-08 07:08:55] <- RECV type=50 from=Server
+[2026-01-08 07:08:55] Groups updated (2)
+[2026-01-08 07:08:56] -> SENT type=23 bytes=4132
+[2026-01-08 07:08:56] <- RECV type=24 from=Server
+[2026-01-08 07:10:58] Connected to server (auto-connect)
+[2026-01-08 07:11:03] -> SENT type=11 bytes=4132
+[2026-01-08 07:11:03] <- RECV type=12 from=Server
+[2026-01-08 07:11:03] Login success
+[2026-01-08 07:11:03] -> SENT type=23 bytes=4132
+[2026-01-08 07:11:03] <- RECV type=24 from=Server
+[2026-01-08 07:11:03] Friends updated (8)
+[2026-01-08 07:11:03] -> SENT type=49 bytes=4132
+[2026-01-08 07:11:03] <- RECV type=50 from=Server
+[2026-01-08 07:11:03] Groups updated (2)
+[2026-01-08 07:12:09] Connected to server (auto-connect)
+[2026-01-08 07:12:14] -> SENT type=11 bytes=4132
+[2026-01-08 07:12:14] <- RECV type=12 from=Server
+[2026-01-08 07:12:14] Login success
+[2026-01-08 07:12:14] -> SENT type=23 bytes=4132
+[2026-01-08 07:12:14] <- RECV type=24 from=Server
+[2026-01-08 07:12:14] Friends updated (8)
+[2026-01-08 07:12:14] -> SENT type=49 bytes=4132
+[2026-01-08 07:12:14] <- RECV type=50 from=Server
+[2026-01-08 07:12:14] Groups updated (2)
+[2026-01-08 07:12:15] -> SENT type=23 bytes=4132
+[2026-01-08 07:12:15] <- RECV type=24 from=Server
+[2026-01-08 07:35:41] Connected to server (auto-connect)
+[2026-01-08 07:35:46] -> SENT type=11 bytes=4132
+[2026-01-08 07:35:46] <- RECV type=12 from=Server
+[2026-01-08 07:35:46] Login success
+[2026-01-08 07:35:46] -> SENT type=23 bytes=4132
+[2026-01-08 07:35:46] <- RECV type=24 from=Server
+[2026-01-08 07:35:46] Friends updated (4)
+[2026-01-08 07:35:46] -> SENT type=49 bytes=4132
+[2026-01-08 07:35:46] <- RECV type=50 from=Server
+[2026-01-08 07:35:46] Groups updated (2)
+[2026-01-08 07:35:47] -> SENT type=29 bytes=4132
+[2026-01-08 07:35:47] <- RECV type=30 from=Server
+[2026-01-08 07:35:47] -> SENT type=29 bytes=4132
+[2026-01-08 07:35:47] <- RECV type=30 from=Server
+[2026-01-08 07:35:48] -> SENT type=29 bytes=4132
+[2026-01-08 07:35:48] <- RECV type=30 from=Server
+[2026-01-08 07:35:48] -> SENT type=29 bytes=4132
+[2026-01-08 07:35:48] <- RECV type=30 from=Server
+[2026-01-08 07:35:49] -> SENT type=47 bytes=4132
+[2026-01-08 07:35:49] <- RECV type=48 from=Server
+[2026-01-08 07:35:50] -> SENT type=47 bytes=4132
+[2026-01-08 07:35:50] <- RECV type=48 from=Server
+[2026-01-08 07:35:50] -> SENT type=23 bytes=4132
+[2026-01-08 07:35:50] <- RECV type=24 from=Server
+[2026-01-08 07:36:06] Connected to server (auto-connect)
+[2026-01-08 07:36:12] -> SENT type=11 bytes=4132
+[2026-01-08 07:36:12] <- RECV type=12 from=Server
+[2026-01-08 07:36:12] Login success
+[2026-01-08 07:36:12] -> SENT type=23 bytes=4132
+[2026-01-08 07:36:12] <- RECV type=24 from=Server
+[2026-01-08 07:36:12] Friends updated (2)
+[2026-01-08 07:36:12] -> SENT type=49 bytes=4132
+[2026-01-08 07:36:12] <- RECV type=50 from=Server
+[2026-01-08 07:36:12] Groups updated (1)
+[2026-01-08 07:36:14] -> SENT type=23 bytes=4132
+[2026-01-08 07:36:14] <- RECV type=24 from=Server
+[2026-01-08 07:36:27] -> SENT type=23 bytes=4132
+[2026-01-08 07:36:27] <- RECV type=24 from=Server

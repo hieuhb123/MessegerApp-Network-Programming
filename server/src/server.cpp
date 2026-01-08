@@ -465,19 +465,46 @@ public:
 
     vector<string> listFriends(const string& username) {
         vector<string> out;
-        lock_guard<mutex> lock(users_mutex);
-        if (!db) return out;
-        string uname = trimStr(username);
-        if (uname.empty()) return out;
-        const char *sql = "SELECT friend FROM friends WHERE user = ? AND status = 'accepted';";
-        sqlite3_stmt *stmt = nullptr;
-        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return out;
-        sqlite3_bind_text(stmt, 1, uname.c_str(), -1, SQLITE_STATIC);
-        while (sqlite3_step(stmt) == SQLITE_ROW) {
-            const unsigned char *f = sqlite3_column_text(stmt, 0);
-            if (f) out.push_back(reinterpret_cast<const char*>(f));
+        
+        // First, get the friends list from DB with their friendship status
+        vector<pair<string, string>> friendsWithStatus;
+        {
+            lock_guard<mutex> lock(users_mutex);
+            if (!db) return out;
+            string uname = trimStr(username);
+            if (uname.empty()) return out;
+            const char *sql = "SELECT friend, status FROM friends WHERE user = ? AND (status = 'accepted' OR status = 'pending');";
+            sqlite3_stmt *stmt = nullptr;
+            if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return out;
+            sqlite3_bind_text(stmt, 1, uname.c_str(), -1, SQLITE_STATIC);
+            while (sqlite3_step(stmt) == SQLITE_ROW) {
+                const unsigned char *f = sqlite3_column_text(stmt, 0);
+                const unsigned char *s = sqlite3_column_text(stmt, 1);
+                if (f) {
+                    string friendName = reinterpret_cast<const char*>(f);
+                    string friendStatus = s ? reinterpret_cast<const char*>(s) : "unknown";
+                    friendsWithStatus.push_back({friendName, friendStatus});
+                }
+            }
+            sqlite3_finalize(stmt);
         }
-        sqlite3_finalize(stmt);
+        
+        // Then check online status for each friend
+        for (const auto& fs : friendsWithStatus) {
+            bool isOnline = false;
+            {
+                lock_guard<mutex> lock(clients_mutex);
+                for (const auto& c : clients) {
+                    if (c.username == fs.first) {
+                        isOnline = true;
+                        break;
+                    }
+                }
+            }
+            string onlineStatus = isOnline ? "online" : "offline";
+            out.push_back(fs.first + ": " + fs.second + ", " + onlineStatus);
+        }
+        
         return out;
     }
 

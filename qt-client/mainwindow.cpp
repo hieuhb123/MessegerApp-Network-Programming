@@ -416,17 +416,29 @@ void MainWindow::onLoginClicked() {
             sendMessage(msg);
             Message resp{};
             if (recvMessageBlocking(resp, 3000) && resp.type == MSG_FRIEND_LIST_RESPONSE) {
-                // Parse content like: "Friends: a, b, c"
+                // Parse content format: "Friends: name1: status, onlineStatus, name2: status, onlineStatus"
                 QString payload = QString::fromUtf8(resp.content);
-                QString list = payload;
+                QString listData = payload;
                 if (payload.startsWith("Friends:", Qt::CaseInsensitive)) {
-                    list = payload.mid(QString("Friends:").length());
+                    listData = listData.mid(QString("Friends:").length()).trimmed();
                 }
-                QStringList names = list.split(',', Qt::SkipEmptyParts);
-                for (QString &n : names) n = n.trimmed();
-                names.removeAll("");
+                
+                QStringList names;
+                QStringList parts = listData.split(',', Qt::SkipEmptyParts);
+                for (int i = 0; i < parts.size(); ) {
+                    QString part = parts[i].trimmed();
+                    if (part.contains(':')) {
+                        // This is "name: status" part
+                        QString name = part.split(':')[0].trimmed();
+                        if (!name.isEmpty()) {
+                            names.append(name);
+                        }
+                        i += 2; // Skip status and onlineStatus parts
+                    } else {
+                        i++;
+                    }
+                }
 
-                // Rebuild convoList: keep "All" at top, replace others with friend names
                 QString currentSel = convoList->currentItem() ? convoList->currentItem()->text() : QString("All");
                 for (int i = convoList->count()-1; i >= 0; --i) {
                     if (convoList->item(i)->text() != "All") {
@@ -513,51 +525,77 @@ void MainWindow::onSendClicked() {
 
 
 void MainWindow::onListFriendsClicked() {
-    // Request server for all users with friendship status relative to current user
+    // Request server for friends list with status and online/offline info
     if (sockfd < 0) { appendLog("Not connected"); return; }
     Message req{}; 
-    req.type = MSG_ALL_USERS_STATUS_REQUEST; 
+    req.type = MSG_FRIEND_LIST_REQUEST; 
     strncpy(req.username, currentUser.toStdString().c_str(), sizeof(req.username)-1); 
     sendMessage(req);
     Message resp{};
-    if (!(recvMessageBlocking(resp, 3000) && resp.type == MSG_ALL_USERS_STATUS_RESPONSE)) {
-    appendLog("No users/status response");
+    if (!(recvMessageBlocking(resp, 3000) && resp.type == MSG_FRIEND_LIST_RESPONSE)) {
+        appendLog("No friend list response");
         return;
     }
 
-    // resp.content contains a multiline human-readable listing like:
-    // Users and status:\n- alice: friend\n- bob: incoming\n...
+    // resp.content contains format: "Friends: name1: accepted, online, name2: pending, offline, ..."
     QString payload = QString::fromUtf8(resp.content);
-
+    
     // Build and show a modal dialog with the list and action buttons
     QDialog dlg(this);
-    dlg.setWindowTitle("Users and friendship status");
+    dlg.setWindowTitle("Friends List");
     QVBoxLayout *v = new QVBoxLayout(&dlg);
-    QLabel *hint = new QLabel("Select a user to see actions (Accept/Unfriend/Open chat)", &dlg);
+    QLabel *hint = new QLabel("Select a friend to see actions", &dlg);
     v->addWidget(hint);
 
     QListWidget *list = new QListWidget(&dlg);
-    QStringList lines = payload.split('\n', Qt::SkipEmptyParts);
-    for (const QString &ln : lines) {
-        // skip header lines that don't have '- '
-        QString line = ln.trimmed();
-        if (!line.startsWith("- ") && !line.contains(":")) continue;
-        // normalize: remove leading '- '
-        QString item = line;
-        if (item.startsWith("- ")) item = item.mid(2);
-        // item like "alice: friend"
-        QStringList parts = item.split(':', Qt::KeepEmptyParts);
-        if (parts.size() < 2) continue;
-        QString name = parts[0].trimmed();
-        QString status = parts[1].trimmed();
-        // Only include accepted (friend) and pending (incoming/outgoing) statuses
-        QString statusLower = status.toLower();
-        if (!(statusLower == "friend" || statusLower == "incoming" || statusLower == "outgoing")) continue;
-        QListWidgetItem *it = new QListWidgetItem(QString("%1 (%2)").arg(name, status));
-        it->setData(Qt::UserRole, name);
-        it->setData(Qt::UserRole + 1, status);
-        list->addItem(it);
+    
+    // Remove "Friends: " prefix if present
+    QString listData = payload;
+    if (listData.startsWith("Friends:", Qt::CaseInsensitive)) {
+        listData = listData.mid(QString("Friends:").length()).trimmed();
     }
+    
+    // Parse format: "alice: accepted, online, bob: pending, offline"
+    QStringList entries = listData.split(',', Qt::SkipEmptyParts);
+    
+    for (int i = 0; i < entries.size(); ) {
+        if (i + 2 >= entries.size()) break;
+        
+        // Each friend takes 3 parts: "name: status", "onlineStatus", next friend
+        QString part1 = entries[i].trimmed();  // "alice: accepted"
+        QString part2 = entries[i+1].trimmed(); // "online"
+        
+        // Parse name and friendship status from part1
+        QStringList nameParts = part1.split(':', Qt::KeepEmptyParts);
+        if (nameParts.size() < 2) {
+            i++;
+            continue;
+        }
+        
+        QString name = nameParts[0].trimmed();
+        QString friendStatus = nameParts[1].trimmed(); // "accepted" or "pending"
+        QString onlineStatus = part2; // "online" or "offline"
+        
+        if (name.isEmpty()) {
+            i++;
+            continue;
+        }
+        
+        // Create display text with all info
+        QString displayText = QString("%1 (%2, %3)")
+            .arg(name)
+            .arg(friendStatus)
+            .arg(onlineStatus);
+        
+        QListWidgetItem *it = new QListWidgetItem(displayText);
+        it->setData(Qt::UserRole, name); // username
+        it->setData(Qt::UserRole + 1, friendStatus); // accepted/pending
+        it->setData(Qt::UserRole + 2, onlineStatus); // online/offline
+        list->addItem(it);
+        
+        i += 2;
+    }
+    
     v->addWidget(list);
 
     QHBoxLayout *h = new QHBoxLayout();
@@ -587,27 +625,36 @@ void MainWindow::onListFriendsClicked() {
             return;
         }
         QString name = cur->data(Qt::UserRole).toString();
-        QString status = cur->data(Qt::UserRole + 1).toString();
+        QString friendStatus = cur->data(Qt::UserRole + 1).toString();
         openChatBtn->setEnabled(!name.isEmpty());
-        // enable Accept only if incoming
-        acceptBtn->setEnabled(status.compare("incoming", Qt::CaseInsensitive) == 0);
-        // enable Decline only if incoming
-        refuseBtn->setEnabled(status.compare("incoming", Qt::CaseInsensitive) == 0);
-        // enable Unfriend only if already friends
-        unfriendBtn->setEnabled(status.compare("friend", Qt::CaseInsensitive) == 0);
+        
+        // Enable Accept/Refuse only if pending (incoming request)
+        // Note: server returns "pending" for outgoing requests we sent
+        // For now we'll allow accepting/refusing "pending" status
+        bool isPending = (friendStatus.compare("pending", Qt::CaseInsensitive) == 0);
+        acceptBtn->setEnabled(isPending);
+        refuseBtn->setEnabled(isPending);
+        
+        // Enable Unfriend only if already friends (accepted)
+        bool isAccepted = (friendStatus.compare("accepted", Qt::CaseInsensitive) == 0);
+        unfriendBtn->setEnabled(isAccepted);
     });
 
     connect(acceptBtn, &QPushButton::clicked, this, [=]() {
         QListWidgetItem *cur = list->currentItem(); if (!cur) return;
         QString name = cur->data(Qt::UserRole).toString();
-        // send accept message: server expects MSG_FRIEND_ACCEPT with username=currentUser and content=from
-        Message m{}; m.type = MSG_FRIEND_ACCEPT; strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
+        QString onlineStatus = cur->data(Qt::UserRole + 2).toString();
+        Message m{}; m.type = MSG_FRIEND_ACCEPT; 
+        strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); 
+        strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
         sendMessage(m);
-        Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
+        Message r{}; 
+        if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
             appendLog("Accepted friend request from " + name);
-            cur->setText(QString("%1 (friend)").arg(name));
-            cur->setData(Qt::UserRole + 1, QString("friend"));
+            cur->setText(QString("%1 (accepted, %2)").arg(name, onlineStatus));
+            cur->setData(Qt::UserRole + 1, QString("accepted"));
             acceptBtn->setEnabled(false);
+            refuseBtn->setEnabled(false);
             unfriendBtn->setEnabled(true);
         } else {
             appendLog("Failed to accept friend request from " + name);
@@ -617,12 +664,14 @@ void MainWindow::onListFriendsClicked() {
     connect(refuseBtn, &QPushButton::clicked, this, [=]() {
         QListWidgetItem *cur = list->currentItem(); if (!cur) return;
         QString name = cur->data(Qt::UserRole).toString();
-        Message m{}; m.type = MSG_FRIEND_REFUSE; strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
+        Message m{}; m.type = MSG_FRIEND_REFUSE; 
+        strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); 
+        strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
         sendMessage(m);
-        Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
-            appendLog("Refuse friend request from " + name);
-            cur->setText(QString("%1 (none)").arg(name));
-            cur->setData(Qt::UserRole + 1, QString("none"));
+        Message r{}; 
+        if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
+            appendLog("Refused friend request from " + name);
+            delete list->takeItem(list->row(cur));
             acceptBtn->setEnabled(false);
             refuseBtn->setEnabled(false);
             unfriendBtn->setEnabled(false);
@@ -634,14 +683,17 @@ void MainWindow::onListFriendsClicked() {
     connect(unfriendBtn, &QPushButton::clicked, this, [=]() {
         QListWidgetItem *cur = list->currentItem(); if (!cur) return;
         QString name = cur->data(Qt::UserRole).toString();
-        Message m{}; m.type = MSG_FRIEND_REMOVE; strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
+        Message m{}; m.type = MSG_FRIEND_REMOVE; 
+        strncpy(m.username, currentUser.toStdString().c_str(), sizeof(m.username)-1); 
+        strncpy(m.content, name.toStdString().c_str(), sizeof(m.content)-1);
         sendMessage(m);
-        Message r{}; if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
+        Message r{}; 
+        if (recvMessageBlocking(r, 3000) && r.type == MSG_AUTH_RESPONSE && r.content[0] == AUTH_SUCCESS) {
             appendLog("Unfriended " + name);
-            cur->setText(QString("%1 (none)").arg(name));
-            cur->setData(Qt::UserRole + 1, QString("none"));
+            delete list->takeItem(list->row(cur));
             unfriendBtn->setEnabled(false);
             acceptBtn->setEnabled(false);
+            refuseBtn->setEnabled(false);
         } else {
             appendLog("Failed to unfriend " + name);
         }
@@ -652,7 +704,13 @@ void MainWindow::onListFriendsClicked() {
         QString name = cur->data(Qt::UserRole).toString();
         // ensure convoList has an entry and select it
         bool found = false;
-        for (int i = 0; i < convoList->count(); ++i) { if (convoList->item(i)->text() == name) { convoList->setCurrentRow(i); found = true; break; } }
+        for (int i = 0; i < convoList->count(); ++i) { 
+            if (convoList->item(i)->text() == name) { 
+                convoList->setCurrentRow(i); 
+                found = true; 
+                break; 
+            } 
+        }
         if (!found) {
             convoList->addItem(name);
             convoList->setCurrentRow(convoList->count()-1);
