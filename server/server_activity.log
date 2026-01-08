@@ -491,3 +491,325 @@
 [2026-01-08 15:35:52] Group history requested: hieu1 -> g1 test
 [2026-01-08 15:35:56] Friend list requested: hieu1
 [2026-01-08 15:36:01] User 'hieu1 left (total=1)
+[2026-01-08 15:37:25] New connection from 127.0.0.1:60902
+[2026-01-08 15:37:25] User 'do left (total=0)
+[2026-01-08 15:39:25] New connection from 127.0.0.1:55564
+[2026-01-08 15:39:30] User 'zxc joined (total=1)
+[2026-01-08 15:39:37] All users/status requested: zxc
+[2026-01-08 15:39:41] Friend request: zxc -> hieu1 [ok]
+[2026-01-08 15:40:08] New connection from 127.0.0.1:42878
+[2026-01-08 15:40:13] User 'kkk joined (total=2)
+[2026-01-08 15:40:16] All users/status requested: kkk
+[2026-01-08 15:40:19] New connection from 127.0.0.1:53700
+[2026-01-08 15:40:19] Friend request: kkk -> zxc [ok]
+[2026-01-08 15:40:20] Friend list requested: zxc
+[2026-01-08 15:40:21] Friend list requested: zxc
+[2026-01-08 15:40:25] User 'hieu1 joined (total=3)
+[2026-01-08 15:40:25] Friend list requested: hieu1
+[2026-01-08 15:40:25] Group list requested: hieu1
+[2026-01-08 15:40:27] Friend list requested: hieu1
+[2026-01-08 15:40:44] Friend list requested: kkk
+[2026-01-08 15:40:52] Friend list requested: zxc
+[2026-01-08 15:41:10] User 'zxc left (total=2)
+[2026-01-08 15:41:10] User 'kkk left (total=1)
+[2026-01-08 15:41:21] New connection from 127.0.0.1:48532
+[2026-01-08 15:41:27] User 'hieu1 left (total=0)
+[2026-01-08 15:41:31] New connection from 127.0.0.1:47766
+[2026-01-08 15:41:40] User 'he joined (total=1)
+[2026-01-08 15:41:48] User 'hi joined (total=2)
+[2026-01-08 15:41:50] All users/status requested: hi
+[2026-01-08 15:41:53] Friend request: hi -> he [ok]
+[2026-01-08 15:41:55] Friend list requested: hi
+[2026-01-08 15:41:59] Friend list requested: he
+[2026-01-08 15:42:05] Friend list requested: hi
+[2026-01-08 15:42:08] Friend list requested: hi
+[2026-01-08 15:42:12] Friend list requested: hi
+[2026-01-08 15:42:15] Friend list requested: he
+[2026-01-08 15:42:17] Friend list requested: hi
+[2026-01-08 15:42:23] User 'hi left (total=1)
+[2026-01-08 15:42:26] New connection from 127.0.0.1:44036
+[2026-01-08 15:42:34] User 'hi joined (total=2)
+[2026-01-08 15:42:34] Friend list requested: hi
+[2026-01-08 15:42:34] Group list requested: hi
+[2026-01-08 15:42:39] Friend list requested: he
+[2026-01-08 15:42:45] Direct message: he -> hi (len=3)
+[2026-01-08 15:42:51] Direct message: hi -> he (len=11)
+[2026-01-08 15:43:08] User 'he left (total=1)
+[2026-01-08 15:43:09] User 'hi left (total=0)
+[2026-01-08 15:43:12] New connection from 127.0.0.1:53212
+[2026-01-08 15:43:19] User 'hieu joined (total=1)
+[2026-01-08 15:43:19] Friend list requested: hieu
+[2026-01-08 15:43:20] Group list requested: hieu
+[2026-01-08 15:43:21] Group history requested: hieu -> g1 test
+[2026-01-08 15:43:22] Group list requested: hieu
+[2026-01-08 15:43:33] Group members requested: hieu -> g1 test
+[2026-01-08 15:43:39] Group history requested: hieu -> network
+[2026-01-08 15:43:41] Group list requested: hieu
+[2026-01-08 15:46:26] New connection from 127.0.0.1:45602
+[2026-01-08 15:46:35] New connection from 127.0.0.1:45400
+[2026-01-08 15:46:44] User '001 joined (total=2)
+[2026-01-08 15:46:45] User '002 joined (total=3)
+[2026-01-08 15:47:11] Group create: 001 -> grouptest [ok]
+[2026-01-08 15:47:14] Group list requested: 001
+[2026-01-08 15:47:18] Group add: 001 add 002 to grouptest [ok]
+[2026-01-08 15:47:22] Group add: 001 add hieu1 to grouptest [ok]
+[2026-01-08 15:47:27] Group add: 001 add hieu to grouptest [ok]
+[2026-01-08 15:47:28] Group members requested: 001 -> grouptest
+[2026-01-08 15:47:32] Group history requested: 001 -> grouptest
+[2026-01-08 15:47:36] Group message: 001 -> grouptest (len=4)
+[2026-01-08 15:47:38] Group history requested: 002 -> grouptest
+[2026-01-08 15:47:43] Group message: 002 -> grouptest (len=4)
+[2026-01-08 15:47:48] Group history requested: hieu -> grouptest
+[2026-01-08 15:47:52] Group message: hieu -> grouptest (len=6)
+[2026-01-08 15:48:04] Group list requested: 001
+[2026-01-08 15:48:08] Group members requested: 001 -> grouptest
+[2026-01-08 15:48:24] Group remove: 001 remove hieu from grouptest [ok]
+[2026-01-08 15:48:31] Group members requested: 001 -> grouptest
+[2026-01-08 15:49:11] Group message: 002 -> grouptest (len=15)
+[2026-01-08 15:49:15] Group list requested: 002
+[2026-01-08 15:49:18] Group history requested: hieu -> network
+[2026-01-08 15:49:20] Group history requested: hieu -> grouptest
+[2026-01-08 15:49:33] Group leave: 002 left grouptest [ok]
+[2026-01-08 15:49:56] Group history requested: 002 -> grouptest
+[2026-01-08 15:50:06] Group history requested: 001 -> grouptest
+[2026-01-08 15:50:10] Group history requested: hieu -> g1 test
+[2026-01-08 15:50:10] Group history requested: hieu -> grouptest
+[2026-01-08 15:50:11] Group history requested: hieu -> network
+[2026-01-08 15:50:12] Group history requested: hieu -> network
+[2026-01-08 15:50:13] Group history requested: hieu -> grouptest
+[2026-01-08 15:50:35] Group message: 001 -> grouptest (len=8)
+[2026-01-08 15:51:01] Group list requested: 001
+[2026-01-08 15:51:19] Group add: 001 add 002 to grouptest [ok]
+[2026-01-08 15:51:22] Group history requested: 002 -> grouptest
+[2026-01-08 15:51:39] All users/status requested: 002
+[2026-01-08 15:51:43] Friend list requested: 002
+[2026-01-08 15:51:51] Friend list requested: 001
+[2026-01-08 15:51:54] Friend list requested: 001
+[2026-01-08 15:51:57] All users/status requested: 001
+[2026-01-08 15:52:00] Friend request: 001 -> hieu1 [ok]
+[2026-01-08 15:52:02] Friend request: 001 -> hieu [ok]
+[2026-01-08 15:52:03] Friend list requested: 001
+[2026-01-08 15:52:04] Friend list requested: 001
+[2026-01-08 15:52:05] Friend list requested: 001
+[2026-01-08 15:52:05] Friend list requested: hieu
+[2026-01-08 15:52:12] Friend list requested: 001
+[2026-01-08 15:52:19] Friend list requested: 001
+[2026-01-08 15:52:22] Friend list requested: 001
+[2026-01-08 15:52:30] Friend remove: 001 -/-> hieu [ok]
+[2026-01-08 15:52:32] Friend remove: 001 -/-> hieu [ok]
+[2026-01-08 15:52:35] Friend remove: 001 -/-> hieu [ok]
+[2026-01-08 15:52:39] Friend list requested: hieu
+[2026-01-08 15:52:44] Friend list requested: 001
+[2026-01-08 15:53:31] Group list requested: 001
+[2026-01-08 15:53:32] Group list requested: 001
+[2026-01-08 15:53:32] Group list requested: 001
+[2026-01-08 15:53:46] Group create: 001 -> grouptest2 [ok]
+[2026-01-08 15:53:47] Group list requested: 001
+[2026-01-08 15:53:49] Group list requested: 001
+[2026-01-08 15:53:50] Group list requested: 001
+[2026-01-08 15:53:58] Group add: 001 add 002 to grouptest2 [ok]
+[2026-01-08 15:54:01] Group add: 001 add hieu to grouptest2 [ok]
+[2026-01-08 15:54:04] Group list requested: hieu
+[2026-01-08 15:54:05] Group add: 001 add hieu1 to grouptest2 [ok]
+[2026-01-08 15:54:06] Group members requested: 001 -> grouptest2
+[2026-01-08 15:54:07] Group members requested: 001 -> grouptest2
+[2026-01-08 15:54:10] Group members requested: 001 -> grouptest2
+[2026-01-08 15:54:11] Group list requested: hieu
+[2026-01-08 15:54:14] Group history requested: 002 -> grouptest
+[2026-01-08 15:54:15] Group history requested: 002 -> grouptest
+[2026-01-08 15:54:15] Group history requested: 002 -> grouptest
+[2026-01-08 15:54:17] Group history requested: 001 -> grouptest2
+[2026-01-08 15:54:22] Group message: 001 -> grouptest2 (len=6)
+[2026-01-08 15:54:23] Group history requested: 002 -> grouptest2
+[2026-01-08 15:54:39] Group list requested: 002
+[2026-01-08 15:54:46] Group leave: 002 left grouptest2 [ok]
+[2026-01-08 15:54:53] All users/status requested: 002
+[2026-01-08 15:57:46] Friend list requested: 002
+[2026-01-08 15:58:11] Group message: 001 -> grouptest2 (len=11)
+[2026-01-08 15:58:21] Friend list requested: 002
+[2026-01-08 15:58:24] Friend list requested: 002
+[2026-01-08 15:58:46] Friend list requested: 002
+[2026-01-08 15:59:00] Group list requested: 002
+[2026-01-08 15:59:03] Group history requested: 002 -> grouptest
+[2026-01-08 15:59:07] Group message: 002 -> grouptest (len=3)
+[2026-01-08 15:59:07] Friend list requested: 001
+[2026-01-08 15:59:09] Group message: 002 -> grouptest (len=3)
+[2026-01-08 15:59:13] Group message: 002 -> grouptest (len=3)
+[2026-01-08 15:59:16] Friend list requested: 001
+[2026-01-08 15:59:23] Group history requested: hieu -> grouptest2
+[2026-01-08 15:59:25] Group history requested: hieu -> network
+[2026-01-08 15:59:25] Group history requested: hieu -> grouptest
+[2026-01-08 15:59:26] Group history requested: hieu -> grouptest2
+[2026-01-08 16:01:02] Group message: 001 -> grouptest2 (len=12)
+[2026-01-08 16:01:21] Group message: 002 -> grouptest (len=17)
+[2026-01-08 16:01:26] Group history requested: hieu -> grouptest
+[2026-01-08 16:01:27] Group history requested: hieu -> grouptest2
+[2026-01-08 16:01:28] Group history requested: hieu -> grouptest
+[2026-01-08 16:01:36] Group history requested: hieu -> g1 test
+[2026-01-08 16:01:37] Group history requested: hieu -> grouptest
+[2026-01-08 16:01:37] Group history requested: hieu -> g1 test
+[2026-01-08 16:01:38] Group history requested: hieu -> network
+[2026-01-08 16:01:38] Group history requested: hieu -> grouptest
+[2026-01-08 16:01:40] Group list requested: 001
+[2026-01-08 16:01:45] Group add: 001 add hieu to grouptest [ok]
+[2026-01-08 16:01:47] Group history requested: hieu -> network
+[2026-01-08 16:01:47] Group history requested: hieu -> grouptest
+[2026-01-08 16:01:55] Group history requested: hieu -> grouptest2
+[2026-01-08 16:01:55] Group history requested: hieu -> grouptest
+[2026-01-08 16:01:56] Group history requested: hieu -> grouptest2
+[2026-01-08 16:02:00] Group history requested: hieu -> grouptest
+[2026-01-08 16:02:27] User 'hieu left (total=2)
+[2026-01-08 16:02:49] New connection from 127.0.0.1:43528
+[2026-01-08 16:02:49] User 'hieu joined (total=3)
+[2026-01-08 16:02:49] Group message: hieu -> grouptest (len=11)
+[2026-01-08 16:03:40] Group history requested: 001 -> grouptest2
+[2026-01-08 16:03:40] Group history requested: 001 -> grouptest
+[2026-01-08 16:03:41] Group history requested: 002 -> grouptest
+[2026-01-08 16:03:42] Group history requested: 002 -> grouptest2
+[2026-01-08 16:03:43] Group history requested: 002 -> grouptest
+[2026-01-08 16:03:43] Group history requested: hieu -> network
+[2026-01-08 16:03:44] Group history requested: hieu -> grouptest
+[2026-01-08 16:03:44] Group history requested: 002 -> grouptest2
+[2026-01-08 16:03:46] Group history requested: 002 -> grouptest
+[2026-01-08 16:03:52] User 'hieu left (total=2)
+[2026-01-08 16:04:10] New connection from 127.0.0.1:60354
+[2026-01-08 16:04:10] User 'hieu joined (total=3)
+[2026-01-08 16:04:10] Group message: hieu -> grouptest (len=11)
+[2026-01-08 16:04:30] User 'hieu left (total=2)
+[2026-01-08 16:06:46] New connection from 127.0.0.1:33516
+[2026-01-08 16:06:56] User 'hieu joined (total=3)
+[2026-01-08 16:06:56] Friend list requested: hieu
+[2026-01-08 16:06:56] Group list requested: hieu
+[2026-01-08 16:07:04] Group history requested: hieu -> network
+[2026-01-08 16:07:04] Group history requested: hieu -> grouptest2
+[2026-01-08 16:07:10] Group history requested: 001 -> grouptest2
+[2026-01-08 16:07:10] User 'hieu left (total=2)
+[2026-01-08 16:07:10] Group history requested: 001 -> grouptest
+[2026-01-08 16:07:11] Group history requested: 001 -> grouptest2
+[2026-01-08 16:07:12] Group history requested: 001 -> grouptest
+[2026-01-08 16:07:26] Group history requested: 002 -> grouptest2
+[2026-01-08 16:07:40] Group history requested: 001 -> grouptest2
+[2026-01-08 16:07:41] Group history requested: 001 -> grouptest
+[2026-01-08 16:07:51] Group history requested: 001 -> grouptest2
+[2026-01-08 16:07:52] Group history requested: 001 -> grouptest
+[2026-01-08 16:07:52] New connection from 127.0.0.1:33072
+[2026-01-08 16:07:52] User 'hieu joined (total=3)
+[2026-01-08 16:07:52] Group message: hieu -> grouptest2 (len=14)
+[2026-01-08 16:07:54] Group history requested: 001 -> grouptest2
+[2026-01-08 16:07:55] Group history requested: 001 -> grouptest
+[2026-01-08 16:07:56] Group history requested: 001 -> grouptest2
+[2026-01-08 16:07:56] Group history requested: 001 -> grouptest
+[2026-01-08 16:07:57] Group history requested: 001 -> grouptest2
+[2026-01-08 16:07:57] Group history requested: 001 -> grouptest
+[2026-01-08 16:08:01] Group history requested: 001 -> grouptest2
+[2026-01-08 16:09:50] User 'hieu left (total=2)
+[2026-01-08 16:09:59] New connection from 127.0.0.1:56000
+[2026-01-08 16:10:08] User 'hieu joined (total=3)
+[2026-01-08 16:10:08] Friend list requested: hieu
+[2026-01-08 16:10:09] Group list requested: hieu
+[2026-01-08 16:10:10] Group history requested: hieu -> grouptest2
+[2026-01-08 16:10:11] User '002 left (total=2)
+[2026-01-08 16:10:12] User 'hieu left (total=1)
+[2026-01-08 16:10:19] Group history requested: 001 -> grouptest
+[2026-01-08 16:10:20] Group history requested: 001 -> grouptest2
+[2026-01-08 16:10:26] Group history requested: 001 -> grouptest
+[2026-01-08 16:10:26] Group history requested: 001 -> grouptest2
+[2026-01-08 16:10:30] New connection from 127.0.0.1:40646
+[2026-01-08 16:10:30] User 'hieu joined (total=2)
+[2026-01-08 16:10:30] Group message: hieu -> grouptest2 (len=2)
+[2026-01-08 16:10:35] Group history requested: 001 -> grouptest
+[2026-01-08 16:10:35] Group history requested: 001 -> grouptest2
+[2026-01-08 16:10:37] Group history requested: 001 -> grouptest2
+[2026-01-08 16:10:37] Group history requested: 001 -> grouptest
+[2026-01-08 16:10:37] Group history requested: 001 -> grouptest2
+[2026-01-08 16:10:38] Group history requested: 001 -> grouptest
+[2026-01-08 16:10:38] Group history requested: 001 -> grouptest2
+[2026-01-08 16:10:39] Group history requested: 001 -> grouptest
+[2026-01-08 16:10:39] Group history requested: 001 -> grouptest2
+[2026-01-08 16:12:26] User '001 left (total=1)
+[2026-01-08 16:12:26] User 'hieu left (total=0)
+[2026-01-08 16:14:07] New connection from 127.0.0.1:38692
+[2026-01-08 16:14:37] User 'hieu joined (total=1)
+[2026-01-08 16:14:37] Friend list requested: hieu
+[2026-01-08 16:14:37] Group list requested: hieu
+[2026-01-08 16:14:38] Group history requested: hieu -> grouptest2
+[2026-01-08 16:14:43] New connection from 127.0.0.1:53980
+[2026-01-08 16:14:46] User '001 joined (total=2)
+[2026-01-08 16:14:47] Friend list requested: 001
+[2026-01-08 16:14:47] Group list requested: 001
+[2026-01-08 16:14:47] User 'hieu left (total=1)
+[2026-01-08 16:14:48] Group history requested: 001 -> grouptest2
+[2026-01-08 16:15:02] New connection from 127.0.0.1:37538
+[2026-01-08 16:15:02] User 'hieu joined (total=2)
+[2026-01-08 16:15:02] Group message: hieu -> grouptest2 (len=3)
+[2026-01-08 16:15:09] Group message: 001 -> grouptest2 (len=3)
+[2026-01-08 16:15:13] Group message: 001 -> grouptest2 (len=3)
+[2026-01-08 16:17:48] User 'hieu left (total=1)
+[2026-01-08 16:17:51] New connection from 127.0.0.1:38816
+[2026-01-08 16:17:56] User 'hieu joined (total=2)
+[2026-01-08 16:17:56] Friend list requested: hieu
+[2026-01-08 16:17:56] Group list requested: hieu
+[2026-01-08 16:17:57] Group history requested: hieu -> grouptest2
+[2026-01-08 16:17:58] Group history requested: hieu -> g1 test
+[2026-01-08 16:18:00] User 'hieu left (total=1)
+[2026-01-08 16:18:08] New connection from 127.0.0.1:41764
+[2026-01-08 16:18:08] User 'hieu joined (total=2)
+[2026-01-08 16:18:08] Direct message: hieu -> hieu1 (len=8)
+[2026-01-08 16:18:21] User 'hieu left (total=1)
+[2026-01-08 16:18:25] Group history requested: 001 -> grouptest
+[2026-01-08 16:18:26] Group history requested: 001 -> grouptest2
+[2026-01-08 16:18:27] Group history requested: 001 -> grouptest
+[2026-01-08 16:18:32] Group history requested: 001 -> grouptest2
+[2026-01-08 16:21:05] User '001 left (total=0)
+[2026-01-08 16:23:36] New connection from 127.0.0.1:52422
+[2026-01-08 16:23:41] User 'hieu joined (total=1)
+[2026-01-08 16:23:41] Friend list requested: hieu
+[2026-01-08 16:23:42] Group list requested: hieu
+[2026-01-08 16:23:43] Group history requested: hieu -> grouptest
+[2026-01-08 16:23:44] User 'hieu left (total=0)
+[2026-01-08 16:24:19] New connection from 127.0.0.1:51632
+[2026-01-08 16:24:19] User 'hieu joined (total=1)
+[2026-01-08 16:24:19] Direct message: hieu -> do (len=2)
+[2026-01-08 16:26:53] User 'hieu left (total=0)
+[2026-01-08 16:27:05] New connection from 127.0.0.1:42880
+[2026-01-08 16:27:08] New connection from 127.0.0.1:42894
+[2026-01-08 16:27:15] User 'hieu joined (total=1)
+[2026-01-08 16:27:15] Friend list requested: hieu
+[2026-01-08 16:27:15] Group list requested: hieu
+[2026-01-08 16:27:17] User '001 joined (total=2)
+[2026-01-08 16:27:17] Friend list requested: 001
+[2026-01-08 16:27:17] Group list requested: 001
+[2026-01-08 16:27:18] Group history requested: 001 -> grouptest
+[2026-01-08 16:27:20] Group history requested: 001 -> grouptest
+[2026-01-08 16:27:24] Group history requested: hieu -> grouptest
+[2026-01-08 16:27:27] User 'hieu left (total=1)
+[2026-01-08 16:27:42] New connection from 127.0.0.1:51184
+[2026-01-08 16:27:42] User 'hieu joined (total=2)
+[2026-01-08 16:27:42] Group message: hieu -> grouptest (len=3)
+[2026-01-08 16:27:42] Group message: hieu -> grouptest (len=3)
+[2026-01-08 16:27:43] Group message: hieu -> grouptest (len=3)
+[2026-01-08 16:28:15] Friend list requested: 001
+[2026-01-08 16:28:23] Group message: 001 -> grouptest (len=3)
+[2026-01-08 16:28:26] Group message: 001 -> grouptest (len=3)
+[2026-01-08 16:28:32] Friend list requested: 001
+[2026-01-08 16:28:34] All users/status requested: 001
+[2026-01-08 16:28:41] Direct message: 001 -> hieu (len=16)
+[2026-01-08 16:28:53] Direct message: 001 -> hieu (len=4)
+[2026-01-08 16:28:53] Direct message: hieu -> 001 (len=4)
+[2026-01-08 16:28:59] User '001 left (total=1)
+[2026-01-08 16:29:00] New connection from 127.0.0.1:54042
+[2026-01-08 16:29:00] User '001 joined (total=2)
+[2026-01-08 16:29:02] User '001 left (total=1)
+[2026-01-08 16:29:04] New connection from 127.0.0.1:54056
+[2026-01-08 16:29:08] User '001 joined (total=2)
+[2026-01-08 16:29:08] Friend list requested: 001
+[2026-01-08 16:29:08] Group list requested: 001
+[2026-01-08 16:29:10] All users/status requested: 001
+[2026-01-08 16:29:20] Friend list requested: 001
+[2026-01-08 16:29:46] Group history requested: 001 -> grouptest2
+[2026-01-08 16:29:47] Group history requested: 001 -> grouptest
+[2026-01-08 16:29:49] Group history requested: 001 -> grouptest
+[2026-01-08 16:29:51] Group history requested: 001 -> grouptest2
+[2026-01-08 16:29:52] Group history requested: 001 -> grouptest
+[2026-01-08 16:30:00] User '001 left (total=1)
+[2026-01-08 16:30:05] User 'hieu left (total=0)

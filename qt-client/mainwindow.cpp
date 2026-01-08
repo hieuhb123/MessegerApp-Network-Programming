@@ -2,6 +2,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QTimer>
+#include <QThread>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -294,8 +295,12 @@ void MainWindow::flushPendingMessages() {
     int sentCount = 0;
     for (const Message &m : qAsConst(pendingMessages)) {
         ssize_t s = ::send(sockfd, &m, sizeof(Message), 0);
+
+        appendLog(QString("Flushing queued message =%1 ...").arg(m.content));
         if (s == (ssize_t)sizeof(Message)) {
             ++sentCount;
+            // Add delay between messages to avoid overwhelming the server
+            QThread::msleep(200);
         } else {
             appendLog("Failed to flush a queued message (will retry later)");
             // stop here; keep remaining messages queued
@@ -429,11 +434,8 @@ void MainWindow::onLoginClicked() {
                     QString part = parts[i].trimmed();
                     if (part.contains(':')) {
                         // This is "name: status" part
-                        QStringList nameParts = part.split(':');
-                        QString name = nameParts[0].trimmed();
-                        QString status = nameParts.size() > 1 ? nameParts[1].trimmed() : "";
-                        // Only add if not pending (skip pending friend requests)
-                        if (!name.isEmpty() && status.compare("pending", Qt::CaseInsensitive) != 0) {
+                        QString name = part.split(':')[0].trimmed();
+                        if (!name.isEmpty()) {
                             names.append(name);
                         }
                         i += 2; // Skip status and onlineStatus parts
@@ -541,6 +543,7 @@ void MainWindow::onListFriendsClicked() {
     }
 
     // resp.content contains format: "Friends: name1: accepted, online, name2: pending, offline, ..."
+    printf("Raw friend list response: %s\n", resp.content);
     QString payload = QString::fromUtf8(resp.content);
     
     // Build and show a modal dialog with the list and action buttons
