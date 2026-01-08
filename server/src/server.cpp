@@ -502,8 +502,7 @@ public:
                     const unsigned char *f = sqlite3_column_text(stmt, 0);
                     if (f) {
                         string friendName = reinterpret_cast<const char*>(f);
-                        // Mark as "incoming" to indicate this is a request to accept
-                        friendsWithStatus.push_back({friendName, "incoming"});
+                        friendsWithStatus.push_back({friendName, "pending"});
                     }
                 }
                 sqlite3_finalize(stmt);
@@ -860,7 +859,7 @@ public:
             clients.push_back(client_info);
         }
 
-        cout << COLOR_GREEN << "\u2713 User '" << client_info.username 
+        cout << COLOR_GREEN << "User '" << client_info.username 
              << "' joined the chat (Total users: " << clients.size() << ")" 
              << COLOR_RESET << endl;
         logActivity(string("User '") + client_info.username + " joined (total=" + to_string(clients.size()) + ")");
@@ -1086,7 +1085,7 @@ public:
             );
         }
 
-        cout << COLOR_YELLOW << "✗ User '" << client_info.username 
+        cout << COLOR_YELLOW << "User '" << client_info.username 
              << "' left the chat (Total users: " << clients.size() << ")" 
              << COLOR_RESET << endl;
         logActivity(string("User '") + client_info.username + " left (total=" + to_string(clients.size()) + ")");

@@ -429,8 +429,11 @@ void MainWindow::onLoginClicked() {
                     QString part = parts[i].trimmed();
                     if (part.contains(':')) {
                         // This is "name: status" part
-                        QString name = part.split(':')[0].trimmed();
-                        if (!name.isEmpty()) {
+                        QStringList nameParts = part.split(':');
+                        QString name = nameParts[0].trimmed();
+                        QString status = nameParts.size() > 1 ? nameParts[1].trimmed() : "";
+                        // Only add if not pending (skip pending friend requests)
+                        if (!name.isEmpty() && status.compare("pending", Qt::CaseInsensitive) != 0) {
                             names.append(name);
                         }
                         i += 2; // Skip status and onlineStatus parts
@@ -538,7 +541,6 @@ void MainWindow::onListFriendsClicked() {
     }
 
     // resp.content contains format: "Friends: name1: accepted, online, name2: pending, offline, ..."
-    printf("Raw friend list response: %s\n", resp.content);
     QString payload = QString::fromUtf8(resp.content);
     
     // Build and show a modal dialog with the list and action buttons
@@ -632,7 +634,7 @@ void MainWindow::onListFriendsClicked() {
         // Enable Accept/Refuse only if pending (incoming request)
         // Note: server returns "pending" for outgoing requests we sent
         // For now we'll allow accepting/refusing "pending" status
-        bool isIncoming = (friendStatus.compare("incoming", Qt::CaseInsensitive) == 0);
+        bool isIncoming = (friendStatus.compare("pending", Qt::CaseInsensitive) == 0);
         acceptBtn->setEnabled(isIncoming);
         refuseBtn->setEnabled(isIncoming);
         
