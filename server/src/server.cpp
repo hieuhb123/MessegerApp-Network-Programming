@@ -473,6 +473,8 @@ public:
             if (!db) return out;
             string uname = trimStr(username);
             if (uname.empty()) return out;
+            
+            // Query 1: Get outgoing requests and accepted friends (where user = current user)
             const char *sql = "SELECT friend, status FROM friends WHERE user = ? AND (status = 'accepted' OR status = 'pending');";
             sqlite3_stmt *stmt = nullptr;
             if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK) return out;
@@ -483,10 +485,29 @@ public:
                 if (f) {
                     string friendName = reinterpret_cast<const char*>(f);
                     string friendStatus = s ? reinterpret_cast<const char*>(s) : "unknown";
+                    // Mark outgoing pending requests as "outgoing" to differentiate from incoming
+                    if (friendStatus == "pending") {
+                        friendStatus = "outgoing";
+                    }
                     friendsWithStatus.push_back({friendName, friendStatus});
                 }
             }
             sqlite3_finalize(stmt);
+            
+            // Query 2: Get incoming friend requests (where friend = current user and status = pending)
+            const char *sql2 = "SELECT user FROM friends WHERE friend = ? AND status = 'pending';";
+            if (sqlite3_prepare_v2(db, sql2, -1, &stmt, nullptr) == SQLITE_OK) {
+                sqlite3_bind_text(stmt, 1, uname.c_str(), -1, SQLITE_STATIC);
+                while (sqlite3_step(stmt) == SQLITE_ROW) {
+                    const unsigned char *f = sqlite3_column_text(stmt, 0);
+                    if (f) {
+                        string friendName = reinterpret_cast<const char*>(f);
+                        // Mark as "incoming" to indicate this is a request to accept
+                        friendsWithStatus.push_back({friendName, "incoming"});
+                    }
+                }
+                sqlite3_finalize(stmt);
+            }
         }
         
         // Then check online status for each friend

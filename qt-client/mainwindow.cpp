@@ -538,6 +538,7 @@ void MainWindow::onListFriendsClicked() {
     }
 
     // resp.content contains format: "Friends: name1: accepted, online, name2: pending, offline, ..."
+    printf("Raw friend list response: %s\n", resp.content);
     QString payload = QString::fromUtf8(resp.content);
     
     // Build and show a modal dialog with the list and action buttons
@@ -559,7 +560,7 @@ void MainWindow::onListFriendsClicked() {
     QStringList entries = listData.split(',', Qt::SkipEmptyParts);
     
     for (int i = 0; i < entries.size(); ) {
-        if (i + 2 >= entries.size()) break;
+        if (i + 1 >= entries.size()) break;
         
         // Each friend takes 3 parts: "name: status", "onlineStatus", next friend
         QString part1 = entries[i].trimmed();  // "alice: accepted"
@@ -631,9 +632,9 @@ void MainWindow::onListFriendsClicked() {
         // Enable Accept/Refuse only if pending (incoming request)
         // Note: server returns "pending" for outgoing requests we sent
         // For now we'll allow accepting/refusing "pending" status
-        bool isPending = (friendStatus.compare("pending", Qt::CaseInsensitive) == 0);
-        acceptBtn->setEnabled(isPending);
-        refuseBtn->setEnabled(isPending);
+        bool isIncoming = (friendStatus.compare("incoming", Qt::CaseInsensitive) == 0);
+        acceptBtn->setEnabled(isIncoming);
+        refuseBtn->setEnabled(isIncoming);
         
         // Enable Unfriend only if already friends (accepted)
         bool isAccepted = (friendStatus.compare("accepted", Qt::CaseInsensitive) == 0);

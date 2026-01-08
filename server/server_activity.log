@@ -264,3 +264,197 @@
 [2026-01-08 07:36:27] Friend list requested: hieu
 [2026-01-08 07:36:37] User 'hieu left (total=1)
 [2026-01-08 07:36:40] User 'hieu1 left (total=0)
+[2026-01-08 13:08:27] Server started on port 8080
+[2026-01-08 13:08:27] Waiting for connections...
+[2026-01-08 13:12:00] New connection from 127.0.0.1:58286
+[2026-01-08 13:25:18] New connection from 127.0.0.1:50754
+[2026-01-08 13:25:22] User 'hieu joined (total=1)
+[2026-01-08 13:25:22] Friend list requested: hieu
+[2026-01-08 13:25:22] Group list requested: hieu
+[2026-01-08 13:25:24] User 'hieu left (total=0)
+[2026-01-08 13:43:27] Server started on port 8080
+[2026-01-08 13:43:27] Waiting for connections...
+[2026-01-08 13:48:09] New connection from 127.0.0.1:60566
+[2026-01-08 14:20:16] New connection from 127.0.0.1:60806
+[2026-01-08 14:22:14] New connection from 127.0.0.1:37268
+[2026-01-08 14:22:52] New connection from 127.0.0.1:47916
+[2026-01-08 14:22:57] User 'hieu joined (total=1)
+[2026-01-08 14:22:57] Friend list requested: hieu
+[2026-01-08 14:22:57] Group list requested: hieu
+[2026-01-08 14:23:03] Friend list requested: hieu
+[2026-01-08 14:24:26] New connection from 127.0.0.1:45322
+[2026-01-08 14:24:34] User 'do joined (total=2)
+[2026-01-08 14:24:34] Friend list requested: do
+[2026-01-08 14:24:34] Group list requested: do
+[2026-01-08 14:25:27] Friend list requested: do
+[2026-01-08 14:25:28] Friend list requested: hieu
+[2026-01-08 14:26:24] Friend list requested: do
+[2026-01-08 14:26:29] All users/status requested: do
+[2026-01-08 14:26:31] New connection from 127.0.0.1:36630
+[2026-01-08 14:26:36] User 'hieu1 joined (total=3)
+[2026-01-08 14:26:36] Friend list requested: hieu1
+[2026-01-08 14:26:36] Group list requested: hieu1
+[2026-01-08 14:27:23] Group history requested: do -> network
+[2026-01-08 14:27:25] Group history requested: do -> network
+[2026-01-08 14:27:27] Group history requested: do -> network
+[2026-01-08 14:27:29] Group history requested: do -> network
+[2026-01-08 14:28:12] All users/status requested: do
+[2026-01-08 14:28:15] Friend request: do -> hieu1 [ok]
+[2026-01-08 14:29:55] User 'do left (total=2)
+[2026-01-08 14:34:17] New connection from 127.0.0.1:50702
+[2026-01-08 14:34:40] New connection from 127.0.0.1:44876
+[2026-01-08 14:34:53] User 'test joined (total=3)
+[2026-01-08 14:34:55] All users/status requested: test
+[2026-01-08 14:34:59] User 'do joined (total=4)
+[2026-01-08 14:34:59] Friend list requested: do
+[2026-01-08 14:34:59] Group list requested: do
+[2026-01-08 14:35:02] Friend list requested: test
+[2026-01-08 14:35:04] All users/status requested: test
+[2026-01-08 14:35:08] Friend request: test -> do [ok]
+[2026-01-08 14:35:10] All users/status requested: do
+[2026-01-08 14:35:15] Friend list requested: do
+[2026-01-08 14:35:24] All users/status requested: do
+[2026-01-08 14:35:29] Friend list requested: do
+[2026-01-08 14:35:34] All users/status requested: test
+[2026-01-08 14:35:34] All users/status requested: test
+[2026-01-08 14:35:44] Friend list requested: do
+[2026-01-08 14:35:57] Friend list requested: do
+[2026-01-08 14:36:05] All users/status requested: test
+[2026-01-08 14:36:14] Friend list requested: test
+[2026-01-08 14:36:14] Friend list requested: test
+[2026-01-08 14:36:16] Friend list requested: do
+[2026-01-08 14:36:20] Friend remove: do -/-> do [ok]
+[2026-01-08 14:36:25] All users/status requested: do
+[2026-01-08 14:36:41] Group history requested: do -> network
+[2026-01-08 14:36:44] Friend list requested: test
+[2026-01-08 14:36:48] All users/status requested: test
+[2026-01-08 14:36:50] All users/status requested: test
+[2026-01-08 14:37:10] Group history requested: do -> network
+[2026-01-08 14:37:17] Direct message: do -> hieu1 (len=3)
+[2026-01-08 14:37:26] Direct message: do -> hieu1 (len=23)
+[2026-01-08 14:37:36] Friend list requested: do
+[2026-01-08 14:37:39] All users/status requested: test
+[2026-01-08 14:37:59] User 'do left (total=3)
+[2026-01-08 14:38:03] New connection from 127.0.0.1:58108
+[2026-01-08 14:38:03] User 'do joined (total=4)
+[2026-01-08 14:38:05] Friend list requested: do
+[2026-01-08 14:38:10] Friend request: test -> hieu1 [ok]
+[2026-01-08 14:38:38] Friend request: test -> hieu [ok]
+[2026-01-08 14:38:40] Friend request: test -> heiu [ok]
+[2026-01-08 14:38:44] Friend list requested: do
+[2026-01-08 14:39:08] User 'do left (total=2)
+[2026-01-08 14:39:08] User 'hieu1 left (total=1)
+[2026-01-08 14:39:08] User 'hieu left (total=0)
+[2026-01-08 14:39:08] User 'test left (total=3)
+[2026-01-08 14:54:05] Server started on port 8080
+[2026-01-08 14:54:05] Waiting for connections...
+[2026-01-08 15:02:28] New connection from 127.0.0.1:46244
+[2026-01-08 15:02:30] New connection from 127.0.0.1:46248
+[2026-01-08 15:02:34] User 'hieu joined (total=1)
+[2026-01-08 15:02:34] Friend list requested: hieu
+[2026-01-08 15:02:35] Group list requested: hieu
+[2026-01-08 15:02:41] User 'do1 joined (total=2)
+[2026-01-08 15:02:41] New connection from 127.0.0.1:35018
+[2026-01-08 15:02:46] User 'hieu1 joined (total=3)
+[2026-01-08 15:02:47] Friend list requested: hieu1
+[2026-01-08 15:02:47] Group list requested: hieu1
+[2026-01-08 15:02:56] Friend list requested: hieu1
+[2026-01-08 15:03:00] Friend list requested: hieu
+[2026-01-08 15:03:00] New connection from 127.0.0.1:38796
+[2026-01-08 15:03:06] User 'do2 joined (total=4)
+[2026-01-08 15:03:21] All users/status requested: do2
+[2026-01-08 15:03:36] All users/status requested: do2
+[2026-01-08 15:03:39] All users/status requested: do1
+[2026-01-08 15:03:47] Friend request: do1 -> hieu1 [ok]
+[2026-01-08 15:03:55] Friend list requested: hieu1
+[2026-01-08 15:04:01] Friend list requested: hieu1
+[2026-01-08 15:04:04] All users/status requested: hieu1
+[2026-01-08 15:04:09] Friend list requested: hieu1
+[2026-01-08 15:04:14] All users/status requested: hieu1
+[2026-01-08 15:04:21] Friend list requested: hieu1
+[2026-01-08 15:04:23] Friend list requested: hieu
+[2026-01-08 15:04:26] All users/status requested: do2
+[2026-01-08 15:04:54] Friend list requested: do1
+[2026-01-08 15:04:56] Friend list requested: do1
+[2026-01-08 15:04:59] All users/status requested: do1
+[2026-01-08 15:05:00] All users/status requested: do1
+[2026-01-08 15:05:05] Friend list requested: do1
+[2026-01-08 15:05:06] Friend list requested: do1
+[2026-01-08 15:05:08] Friend list requested: do2
+[2026-01-08 15:06:48] Friend list requested: do2
+[2026-01-08 15:06:50] Friend list requested: do1
+[2026-01-08 15:06:51] Friend list requested: do2
+[2026-01-08 15:07:00] User 'hieu1 left (total=3)
+[2026-01-08 15:07:00] User 'hieu left (total=2)
+[2026-01-08 15:07:16] New connection from 127.0.0.1:42056
+[2026-01-08 15:07:17] User 'do1 left (total=1)
+[2026-01-08 15:07:17] User 'do2 left (total=0)
+[2026-01-08 15:07:21] User 'hieu1 joined (total=1)
+[2026-01-08 15:07:21] Friend list requested: hieu1
+[2026-01-08 15:07:21] Group list requested: hieu1
+[2026-01-08 15:07:22] Friend list requested: hieu1
+[2026-01-08 15:07:37] Friend list requested: hieu1
+[2026-01-08 15:07:40] New connection from 127.0.0.1:41928
+[2026-01-08 15:07:44] User 'do1 joined (total=2)
+[2026-01-08 15:07:44] Friend list requested: do1
+[2026-01-08 15:07:45] Group list requested: do1
+[2026-01-08 15:07:46] Friend list requested: do1
+[2026-01-08 15:08:20] Friend list requested: do1
+[2026-01-08 15:08:40] Friend list requested: hieu1
+[2026-01-08 15:08:53] User 'hieu1 left (total=1)
+[2026-01-08 15:09:05] User 'do1 left (total=0)
+[2026-01-08 15:09:07] New connection from 127.0.0.1:41000
+[2026-01-08 15:09:07] User 'do1 joined (total=1)
+[2026-01-08 15:10:09] Server started on port 8080
+[2026-01-08 15:10:09] Waiting for connections...
+[2026-01-08 15:10:15] New connection from 127.0.0.1:45868
+[2026-01-08 15:10:20] User 'hieu1 joined (total=1)
+[2026-01-08 15:10:20] Friend list requested: hieu1
+[2026-01-08 15:10:20] Group list requested: hieu1
+[2026-01-08 15:10:24] Friend list requested: hieu1
+[2026-01-08 15:10:28] Friend list requested: hieu1
+[2026-01-08 15:12:42] Server started on port 8080
+[2026-01-08 15:12:42] Waiting for connections...
+[2026-01-08 15:12:56] New connection from 127.0.0.1:34006
+[2026-01-08 15:13:02] User 'hieu1 joined (total=1)
+[2026-01-08 15:13:03] Friend list requested: hieu1
+[2026-01-08 15:13:03] Group list requested: hieu1
+[2026-01-08 15:13:07] Friend list requested: hieu1
+[2026-01-08 15:13:22] User 'hieu1 left (total=0)
+[2026-01-08 15:18:58] Server started on port 8080
+[2026-01-08 15:18:58] Waiting for connections...
+[2026-01-08 15:19:02] New connection from 127.0.0.1:51636
+[2026-01-08 15:19:08] User 'hieu1 joined (total=1)
+[2026-01-08 15:19:08] Friend list requested: hieu1
+[2026-01-08 15:19:08] Group list requested: hieu1
+[2026-01-08 15:19:22] Friend list requested: hieu1
+[2026-01-08 15:19:35] User 'hieu1 left (total=0)
+[2026-01-08 15:21:46] New connection from 127.0.0.1:54808
+[2026-01-08 15:21:50] User 'hieu1 joined (total=1)
+[2026-01-08 15:21:50] Friend list requested: hieu1
+[2026-01-08 15:21:50] Group list requested: hieu1
+[2026-01-08 15:21:52] Friend list requested: hieu1
+[2026-01-08 15:22:08] Friend list requested: hieu1
+[2026-01-08 15:22:32] User 'hieu1 left (total=0)
+[2026-01-08 15:22:38] New connection from 127.0.0.1:49574
+[2026-01-08 15:22:42] User 'hieu1 joined (total=1)
+[2026-01-08 15:22:42] Friend list requested: hieu1
+[2026-01-08 15:22:42] Group list requested: hieu1
+[2026-01-08 15:22:44] Friend list requested: hieu1
+[2026-01-08 15:23:07] All users/status requested: hieu1
+[2026-01-08 15:23:15] Group history requested: hieu1 -> g1 test
+[2026-01-08 15:23:21] Friend list requested: hieu1
+[2026-01-08 15:23:24] User 'hieu1 left (total=0)
+[2026-01-08 15:23:50] New connection from 127.0.0.1:58110
+[2026-01-08 15:23:54] User 'hieu joined (total=1)
+[2026-01-08 15:23:54] Friend list requested: hieu
+[2026-01-08 15:23:54] Group list requested: hieu
+[2026-01-08 15:23:55] Friend list requested: hieu
+[2026-01-08 15:24:12] User 'hieu left (total=0)
+[2026-01-08 15:24:14] New connection from 127.0.0.1:33968
+[2026-01-08 15:24:19] User 'hieu1 joined (total=1)
+[2026-01-08 15:24:20] Friend list requested: hieu1
+[2026-01-08 15:24:20] Group list requested: hieu1
+[2026-01-08 15:24:21] Friend list requested: hieu1
+[2026-01-08 15:24:22] New connection from 127.0.0.1:33984
+[2026-01-08 15:24:31] User 'hieu1 left (total=0)

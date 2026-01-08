@@ -4,10 +4,10 @@
 #include <string>
 
 // Network configuration
-// #define SERVER_IP "140.245.98.236"
-// #define PORT 4652
-#define SERVER_IP "127.0.0.1"
-#define PORT 8080
+#define SERVER_IP "140.245.98.236"
+#define PORT 7680
+// #define SERVER_IP "127.0.0.1"
+// #define PORT 8080
 #define MAX_CLIENTS 10
 #define BUFFER_SIZE 4096
 
